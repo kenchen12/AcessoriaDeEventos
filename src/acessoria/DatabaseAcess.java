@@ -32,4 +32,16 @@ public class DatabaseAcess {
         return null;
     }
 
+    public int createCliente(){
+        Statement st;
+        try{
+            st = connection.createStatement();
+            return st.executeUpdate("INSERT INTO TIME(NOME, ESTADO, TIPO, SALDO_GOLS) VALUES (\'ASDAD\', \'SE\', \'AMADOR\', 0)");
+        }
+        catch(Exception e){
+			e.printStackTrace();
+        }
+        return 0;
+    }
+
 }
