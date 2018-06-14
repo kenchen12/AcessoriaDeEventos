@@ -20,6 +20,6 @@ public class Main {
         catch(Exception e){
             e.printStackTrace();
         }
-        System.out.println(db.createCliente());
+        System.out.println(db.createCliente("15654888874456", "Crisrene", "crisrene@outlook.com", "111213155588779"));
     }
 }

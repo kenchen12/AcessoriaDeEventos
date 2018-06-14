@@ -32,11 +32,19 @@ public class DatabaseAcess {
         return null;
     }
 
-    public int createCliente(){
+    public int createCliente(String cpf, String nome, String email, String telefone){
         Statement st;
+        if(email.length() == 0){
+            email = "NULL";
+        }
+        if(telefone.length() == 0){
+            telefone = "NULL";
+        }
+
         try{
+            String sql = "INSERT INTO CLIENTE VALUES('"+cpf+"', '" + nome + "', '" + email + "', '" + telefone +"')";
             st = connection.createStatement();
-            return st.executeUpdate("INSERT INTO TIME(NOME, ESTADO, TIPO, SALDO_GOLS) VALUES (\'ASDAD\', \'SE\', \'AMADOR\', 0)");
+            return st.executeUpdate(sql);
         }
         catch(Exception e){
 			e.printStackTrace();
