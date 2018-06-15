@@ -134,6 +134,39 @@ public class UI {
             return "";
     }
 
+    private void createClienteInput() {
+        String cpf, nome, email, telefone;
+        Scanner s = new Scanner(System.in);
+
+        System.out.println("Digite os dados a serem inseridos");
+        while(true) {
+            System.out.print("CPF:");
+            cpf = s.nextLine();
+            System.out.print("Nome:");
+            nome = s.nextLine();
+            System.out.print("Email:");
+            email = s.nextLine();
+            System.out.print("Telefone:");
+            telefone = s.nextLine();
+        
+            System.out.println("Os dados estão corretos?");
+            System.out.println("1. Sim");
+            System.out.println("2. Não");
+
+            String input = s.nextLine();
+            input = input.toLowerCase();
+
+            if(input.equals("1") || input.equals("sim")) {
+                this.db.createCliente(cpf, nome, email, telefone);
+                break;
+            }
+            else if(input.equals("2") || input.equals("não")) {
+                System.out.println("Reinsira os dados");
+            }
+        }
+
+    }
+
     private void insert() {
         while(true) {
             int i = 1;
@@ -153,7 +186,9 @@ public class UI {
                 System.out.println("Tabela inválida");
             }
             else {
-                // inserir
+                if(input.equals("CLIENTE")) {
+                    this.createClienteInput();
+                }
             }
         }
     }
