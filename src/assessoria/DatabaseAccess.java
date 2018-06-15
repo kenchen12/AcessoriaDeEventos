@@ -46,4 +46,24 @@ public class DatabaseAccess {
         return this.connection;
     }
 
+    public int createCliente(String cpf, String nome, String email, String telefone){
+        Statement st;
+        if(email.length() == 0){
+            email = "NULL";
+        }
+        if(telefone.length() == 0){
+            telefone = "NULL";
+        }
+
+        try{
+            String sql = "INSERT INTO CLIENTE VALUES('"+cpf+"', '" + nome + "', '" + email + "', '" + telefone +"')";
+            st = connection.createStatement();
+            return st.executeUpdate(sql);
+        }
+        catch(Exception e){
+			e.printStackTrace();
+        }
+        return 0;
+    }
+
 }
