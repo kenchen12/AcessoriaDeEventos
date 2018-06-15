@@ -78,6 +78,8 @@ public class UI {
     }
 
     public void mainMenu() {
+        if(this.db == null)
+            return;
         while(true) {
             System.out.println("O que deseja fazer?");
             System.out.println("1. Inserir");
@@ -144,7 +146,6 @@ public class UI {
             Scanner s = new Scanner(System.in);
             String input = s.nextLine();
             input = filterInsert(input);
-            System.out.println("Input = '" + input + "'");
 
             if(input.equals(Integer.toString(i)) || input.equals("SAIR"))
                 break;

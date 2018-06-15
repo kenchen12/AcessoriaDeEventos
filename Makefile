@@ -1,4 +1,4 @@
 all:
-	@javac -s src/ -d out/production/AcessoriaEventos src/*/*.java
+	@javac -s src/ -d bin src/*/*.java
 run:
-	@java -cp ojdbc14.jar:out/production/AcessoriaEventos/ assessoria.Main
+	@java -cp ojdbc14.jar:bin/ assessoria.Main
