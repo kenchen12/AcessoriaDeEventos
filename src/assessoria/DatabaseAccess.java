@@ -49,6 +49,20 @@ public class DatabaseAccess {
         }
         return 0;
     }
+    
+    public int createConvidado(String festa, String nome){
+        Statement st;
+
+        try{
+            String sql = "INSERT INTO CONVIDADO VALUES('"+festa+"', '" +nome+ "')";
+            st = connection.createStatement();
+            return st.executeUpdate(sql);
+        }
+        catch(Exception e){
+			e.printStackTrace();
+        }
+        return 0;
+    }
 
     public Connection getConnection() {
         return this.connection;

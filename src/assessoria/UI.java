@@ -192,6 +192,61 @@ public class UI {
         }
 
     }
+    
+    private void createConvidadoInput() {
+        String festa, nome;
+        Scanner s = new Scanner(System.in);
+
+        System.out.println("Digite os dados a serem inseridos");
+        while(true) {
+            System.out.print("Festa:");
+            festa = s.nextLine();
+            System.out.print("Nome:");
+            nome = s.nextLine();
+        
+            System.out.println("Os dados estão corretos?");
+            System.out.println("1. Sim");
+            System.out.println("2. Não");
+
+            String input = s.nextLine();
+            input = input.toLowerCase();
+
+            if(input.equals("1") || input.equals("sim")) {
+                int ret = this.db.createConvidado(festa, nome);
+                if(ret != 0) {
+                    System.out.println("Inserção efetuada com sucesso");
+                    break;
+                }
+                else {
+                    System.out.println("Não foi possível inserir, deseja inserir de novo?");
+                    System.out.println("1. Sim");
+                    System.out.println("2. Não");
+                    String ans = s.nextLine();
+                    ans = ans.toLowerCase();
+                    if(ans.equals("1") || ans.equals("sim")) {
+                        System.out.println("Reinsira os dados");
+                        continue;
+                    }
+                    else if(ans.equals("2") || ans.equals("não"))
+                        return;
+                }
+            }
+            else if(input.equals("2") || input.equals("não")) {
+                System.out.println("O que deseja fazer?");
+                System.out.println("1. Reinserir dados");
+                System.out.println("2. Sair");
+
+                String ans = s.nextLine();
+                if(ans.equals("1") || ans.equals("sim")) {
+                    System.out.println("Reinsira os dados");
+                    continue;
+                }
+                else if(ans.equals("2") || ans.equals("não"))
+                    return;
+            }
+        }
+
+    }
 
     private void insert() {
         while(true) {
@@ -214,6 +269,9 @@ public class UI {
             else {
                 if(input.equals("CLIENTE")) {
                     this.createClienteInput();
+                }
+                else if(input.equals("CONVIDADO")) {
+                    this.createConvidadoInput();
                 }
             }
         }
