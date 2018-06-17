@@ -3,6 +3,7 @@ package assessoria;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import assessoria.DatabaseAccess;
 
@@ -133,121 +134,105 @@ public class UI {
         else
             return "";
     }
-
-    private void createClienteInput() {
-        String cpf, nome, email, telefone;
+    
+    private void createInsertInput(String tableName) {
+        Statement st = null;
+        ResultSet rs = null;
+        ResultSetMetaData rsmd = null;
+        int nCols = 0;
         Scanner s = new Scanner(System.in);
-
-        System.out.println("Digite os dados a serem inseridos");
-        while(true) {
-            System.out.print("CPF:");
-            cpf = s.nextLine();
-            System.out.print("Nome:");
-            nome = s.nextLine();
-            System.out.print("Email:");
-            email = s.nextLine();
-            System.out.print("Telefone:");
-            telefone = s.nextLine();
+        String aux = null;
+        ArrayList<String> input = new ArrayList<String>();
         
+        try {
+            st = this.db.getConnection().createStatement();
+            rs = st.executeQuery("SELECT * FROM " + tableName);
+            rsmd = rs.getMetaData();
+            nCols = rsmd.getColumnCount();
+        }
+        catch (Exception e) {}
+        
+        System.out.println("Digite os dados a serem inseridos");
+
+        while(true) {
+            for(int col = 1; col <= nCols; col++) {
+                String name = null;
+                try {
+                    name = rsmd.getColumnName(col);
+                }
+                catch (Exception e) {}
+
+                while(true) {
+                    System.out.print(name + ": ");
+                    aux = s.nextLine();
+                    int nullable = 0;
+                    try {
+                        nullable = rsmd.isNullable(col);
+                    }
+                    catch(Exception e) {}
+                    if(aux.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
+                        System.out.println("Valor inválido. Este campo é obrigatório");
+                    }
+                    else {
+                        input.add(aux);
+                        break;
+                    }
+                }
+            }
+
             System.out.println("Os dados estão corretos?");
             System.out.println("1. Sim");
             System.out.println("2. Não");
 
-            String input = s.nextLine();
-            input = input.toLowerCase();
+            String answer = s.nextLine();
+            answer = answer.toLowerCase();
 
-            if(input.equals("1") || input.equals("sim")) {
-                int ret = this.db.createCliente(cpf, nome, email, telefone);
+            if(answer.equals("1") || answer.equals("sim")) {
+                int ret = this.db.insertColumn(tableName, input);
                 if(ret != 0) {
                     System.out.println("Inserção efetuada com sucesso");
                     break;
                 }
                 else {
                     System.out.println("Não foi possível inserir, deseja inserir de novo?");
-                    System.out.println("1. Sim");
-                    System.out.println("2. Não");
+                    while(true) {
+                        System.out.println("1. Sim");
+                        System.out.println("2. Não");
+                        String ans = s.nextLine();
+                        ans = ans.toLowerCase();
+                        if(ans.equals("1") || ans.equals("sim")) {
+                            System.out.println("Reinsira os dados");
+                            input.clear();
+                            break;
+                        }
+                        else if(ans.equals("2") || ans.equals("não"))
+                            return;
+                        else
+                            System.out.println("Resposta inválida");
+                    }
+                }
+            }
+            else if(answer.equals("2") || answer.equals("não")) {
+                System.out.println("O que deseja fazer?");
+                while(true) {
+                    System.out.println("1. Reinserir dados");
+                    System.out.println("2. Sair");
+
                     String ans = s.nextLine();
-                    ans = ans.toLowerCase();
                     if(ans.equals("1") || ans.equals("sim")) {
                         System.out.println("Reinsira os dados");
-                        continue;
+                        input.clear();
+                        break;
                     }
                     else if(ans.equals("2") || ans.equals("não"))
                         return;
+                    else
+                        System.out.println("Resposta inválida");
                 }
             }
-            else if(input.equals("2") || input.equals("não")) {
-                System.out.println("O que deseja fazer?");
-                System.out.println("1. Reinserir dados");
-                System.out.println("2. Sair");
-
-                String ans = s.nextLine();
-                if(ans.equals("1") || ans.equals("sim")) {
-                    System.out.println("Reinsira os dados");
-                    continue;
-                }
-                else if(ans.equals("2") || ans.equals("não"))
-                    return;
-            }
-        }
-
+        }            
     }
     
-    private void createConvidadoInput() {
-        String festa, nome;
-        Scanner s = new Scanner(System.in);
-
-        System.out.println("Digite os dados a serem inseridos");
-        while(true) {
-            System.out.print("Festa:");
-            festa = s.nextLine();
-            System.out.print("Nome:");
-            nome = s.nextLine();
-        
-            System.out.println("Os dados estão corretos?");
-            System.out.println("1. Sim");
-            System.out.println("2. Não");
-
-            String input = s.nextLine();
-            input = input.toLowerCase();
-
-            if(input.equals("1") || input.equals("sim")) {
-                int ret = this.db.createConvidado(festa, nome);
-                if(ret != 0) {
-                    System.out.println("Inserção efetuada com sucesso");
-                    break;
-                }
-                else {
-                    System.out.println("Não foi possível inserir, deseja inserir de novo?");
-                    System.out.println("1. Sim");
-                    System.out.println("2. Não");
-                    String ans = s.nextLine();
-                    ans = ans.toLowerCase();
-                    if(ans.equals("1") || ans.equals("sim")) {
-                        System.out.println("Reinsira os dados");
-                        continue;
-                    }
-                    else if(ans.equals("2") || ans.equals("não"))
-                        return;
-                }
-            }
-            else if(input.equals("2") || input.equals("não")) {
-                System.out.println("O que deseja fazer?");
-                System.out.println("1. Reinserir dados");
-                System.out.println("2. Sair");
-
-                String ans = s.nextLine();
-                if(ans.equals("1") || ans.equals("sim")) {
-                    System.out.println("Reinsira os dados");
-                    continue;
-                }
-                else if(ans.equals("2") || ans.equals("não"))
-                    return;
-            }
-        }
-
-    }
-
     private void insert() {
         while(true) {
             int i = 1;
@@ -267,12 +252,16 @@ public class UI {
                 System.out.println("Tabela inválida");
             }
             else {
-                if(input.equals("CLIENTE")) {
-                    this.createClienteInput();
-                }
-                else if(input.equals("CONVIDADO")) {
-                    this.createConvidadoInput();
-                }
+                /*    if(input.equals("CLIENTE")) {
+                      this.createClienteInput();
+                      }
+                      else if(input.equals("CONVIDADO")) {
+                      this.createConvidadoInput();
+                      }
+                      else if(input.equals("EQUIPE_SEGURANCA")) {
+                      this.createSegurancaInput();
+                      }*/
+                this.createInsertInput(input);
             }
         }
     }
