@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 
 public class DatabaseAccess {
     
@@ -29,32 +30,20 @@ public class DatabaseAccess {
         }
         return null;
     }
-
-    public int createCliente(String cpf, String nome, String email, String telefone){
-        Statement st;
-        if(email.length() == 0){
-            email = "NULL";
-        }
-        if(telefone.length() == 0){
-            telefone = "NULL";
-        }
-
-        try{
-            String sql = "INSERT INTO CLIENTE VALUES('"+cpf+"', '" + nome + "', '" + email + "', '" + telefone +"')";
-            st = connection.createStatement();
-            return st.executeUpdate(sql);
-        }
-        catch(Exception e){
-			e.printStackTrace();
-        }
-        return 0;
-    }
     
-    public int createConvidado(String festa, String nome){
+    public int insertColumn(String tableName, ArrayList<String> value) {
         Statement st;
 
         try{
-            String sql = "INSERT INTO CONVIDADO VALUES('"+festa+"', '" +nome+ "')";
+            String sql = "INSERT INTO "+tableName+" VALUES(";
+            for(int i = 0; i < value.size(); i++) {
+                if(i == value.size()-1) {
+                    sql+= "'"+value.get(i)+"')";
+                }
+                else {
+                    sql += "'"+value.get(i)+"',";
+                }
+            }
             st = connection.createStatement();
             return st.executeUpdate(sql);
         }
@@ -64,6 +53,7 @@ public class DatabaseAccess {
         return 0;
     }
 
+    
     public Connection getConnection() {
         return this.connection;
     }
