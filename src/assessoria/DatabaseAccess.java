@@ -41,11 +41,11 @@ public class DatabaseAccess {
         return 0;
     }
     
-    public int updteColumn1(String tableName, String cpf, String novo) {
+    public int updteColumn1(String tableName, String cpf, String novo, String coluna) {
         Statement st;
 
         try{
-            String sql = "UPDATE "+tableName+" SET NOME = '" + novo + "' WHERE CPF = '" + cpf + "'";
+            String sql = "UPDATE "+tableName+" SET " + coluna + "= '" + novo + "' WHERE " + coluna + " = '" + cpf + "'";
             st = connection.createStatement();
             return st.executeUpdate(sql);
         }

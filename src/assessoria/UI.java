@@ -268,8 +268,8 @@ public class UI {
         ResultSetMetaData rsmd = null;
         int nCols = 0;
         Scanner s = new Scanner(System.in);
-        String aux = null, aux2 = null;
-        ArrayList<String> input = new ArrayList<String>();
+        String antigo = null, novo = null, coluna = null;
+        int coll = 0;
         
         try {
             st = this.db.getConnection().createStatement();
@@ -279,7 +279,7 @@ public class UI {
         }
         catch (Exception e) {}
         
-        System.out.println("Digite a coluna que deseja alterar O NOME");
+        System.out.println("Digite a coluna que deseja alterar ");
         for(int col = 1; col <= nCols; col++) {
                 String name = null;
                 try {
@@ -288,27 +288,34 @@ public class UI {
                 catch (Exception e) {}
 				System.out.println(col + ". " + name);
         }
+        System.out.println( (nCols+1) + ". Sair");
             
         String scoluna = s.nextLine();
-        int coluna = Integer.parseInt(scoluna);
+
+        try {
+			coll = Integer.parseInt(scoluna);
+			coluna = rsmd.getColumnName(coll);
+		}
+		catch(Exception e) {}
+        
         
         while (true){	
 			
 			while (true){
 				
-				System.out.println("Digite o cpf do cliente a ser alterado");
-				aux = s.nextLine();
+				System.out.println("Digite o dado antigo do cliente a ser alterado");
+				antigo = s.nextLine();
 				
 				System.out.println("Digite o novo nome a ser inserido");
-				aux2 = s.nextLine();
+				novo = s.nextLine();
 				
 				
 				int nullable = 0;
 				try {
-					nullable = rsmd.isNullable(coluna);
+					nullable = rsmd.isNullable(coll);
 				}
 				catch(Exception e) {}
-				if(aux.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
+				if(novo.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
 					System.out.println("Valor inválido. Este campo é obrigatório");
 				}
 				else {
@@ -325,7 +332,7 @@ public class UI {
 			answer = answer.toLowerCase();
 
 			if(answer.equals("1") || answer.equals("sim")) {
-				int ret = this.db.updteColumn1(tableName, aux, aux2);
+				int ret = this.db.updteColumn1(tableName, antigo, novo, coluna);
 				if(ret != 0) {
 					System.out.println("Inserção efetuada com sucesso");
 					break;
