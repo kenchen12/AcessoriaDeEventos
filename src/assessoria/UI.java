@@ -60,6 +60,8 @@ public class UI {
         catch(Exception e) {}
         return tn;
     }
+    
+
 
     private String filterMainMenu(String raw) {
         raw = raw.toLowerCase();
@@ -97,7 +99,7 @@ public class UI {
                 this.insert();
             }
             else if(input.equals("atualizar")) {
-
+				this.update();
             }
             else if(input.equals("visualizar")) {
 
@@ -233,6 +235,8 @@ public class UI {
         }            
     }
     
+    
+    
     private void insert() {
         while(true) {
             int i = 1;
@@ -241,7 +245,7 @@ public class UI {
                 System.out.println(i + ". " + str);
                 i++;
             }
-            System.out.println(i + ". Sair");
+            System.out.println(i + ". RETORNAR");
             Scanner s = new Scanner(System.in);
             String input = s.nextLine();
             input = filterInsert(input);
@@ -252,17 +256,153 @@ public class UI {
                 System.out.println("Tabela inválida");
             }
             else {
-                /*    if(input.equals("CLIENTE")) {
-                      this.createClienteInput();
-                      }
-                      else if(input.equals("CONVIDADO")) {
-                      this.createConvidadoInput();
-                      }
-                      else if(input.equals("EQUIPE_SEGURANCA")) {
-                      this.createSegurancaInput();
-                      }*/
                 this.createInsertInput(input);
             }
         }
     }
+    
+    
+    private void createUpdateInput(String tableName) {
+        Statement st = null;
+        ResultSet rs = null;
+        ResultSetMetaData rsmd = null;
+        int nCols = 0;
+        Scanner s = new Scanner(System.in);
+        String aux = null, aux2 = null;
+        ArrayList<String> input = new ArrayList<String>();
+        
+        try {
+            st = this.db.getConnection().createStatement();
+            rs = st.executeQuery("SELECT * FROM " + tableName);
+            rsmd = rs.getMetaData();
+            nCols = rsmd.getColumnCount();
+        }
+        catch (Exception e) {}
+        
+        System.out.println("Digite a coluna que deseja alterar O NOME");
+        for(int col = 1; col <= nCols; col++) {
+                String name = null;
+                try {
+                    name = rsmd.getColumnName(col);
+                }
+                catch (Exception e) {}
+				System.out.println(col + ". " + name);
+        }
+            
+        String scoluna = s.nextLine();
+        int coluna = Integer.parseInt(scoluna);
+        
+        while (true){	
+			
+			while (true){
+				
+				System.out.println("Digite o cpf do cliente a ser alterado");
+				aux = s.nextLine();
+				
+				System.out.println("Digite o novo nome a ser inserido");
+				aux2 = s.nextLine();
+				
+				
+				int nullable = 0;
+				try {
+					nullable = rsmd.isNullable(coluna);
+				}
+				catch(Exception e) {}
+				if(aux.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
+					System.out.println("Valor inválido. Este campo é obrigatório");
+				}
+				else {
+					break;
+				}
+			}
+				
+				
+			System.out.println("O novo dado está correto?");
+			System.out.println("1. Sim");
+			System.out.println("2. Não");
+
+			String answer = s.nextLine();
+			answer = answer.toLowerCase();
+
+			if(answer.equals("1") || answer.equals("sim")) {
+				int ret = this.db.updteColumn1(tableName, aux, aux2);
+				if(ret != 0) {
+					System.out.println("Inserção efetuada com sucesso");
+					break;
+				}
+				else {
+					System.out.println("Não foi possível inserir, deseja inserir de novo?");
+					while(true) {
+						System.out.println("1. Sim");
+						System.out.println("2. Não");
+						String ans = s.nextLine();
+						ans = ans.toLowerCase();
+						if(ans.equals("1") || ans.equals("sim")) {
+							System.out.println("reinsira o dado");
+							break;
+						}
+						else if(ans.equals("2") || ans.equals("não"))
+							return;
+						else
+							System.out.println("Resposta inválida");
+					}
+				}
+			}
+			else if(answer.equals("2") || answer.equals("não")) {
+				System.out.println("O que deseja fazer?");
+				while(true) {
+					System.out.println("1. Reinserir dados");
+					System.out.println("2. Sair");
+
+					String ans = s.nextLine();
+					if(ans.equals("1") || ans.equals("sim")) {
+						System.out.println("Reinsira os dados");
+						break;
+					}
+					else if(ans.equals("2") || ans.equals("não"))
+						return;
+					else
+						System.out.println("Resposta inválida");
+				}
+			}
+        }
+    }
+    
+    
+    
+    
+    
+    private void update() {
+        while(true) {
+            int i = 1;
+            System.out.println("Qual tabela gostaria de atualizar?");
+            for(String str : this.tableName) {
+                System.out.println(i + ". " + str);
+                i++;
+            }
+            System.out.println(i + ". RETORNAR");
+            Scanner s = new Scanner(System.in);
+            String input = s.nextLine();
+            input = filterInsert(input);
+
+            if(input.equals(Integer.toString(i)) || input.equals("SAIR"))
+                break;
+            else if(input.equals("")) {
+                System.out.println("Tabela inválida");
+            }
+            else {
+                this.createUpdateInput(input);
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }
