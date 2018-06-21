@@ -23,6 +23,7 @@ public class DatabaseAccess {
         Statement st;
 
         try{
+            /* Loop through array list to create insert query */
             String sql = "INSERT INTO "+tableName+" VALUES(";
             for(int i = 0; i < value.size(); i++) {
                 if(i == value.size()-1) {
@@ -32,16 +33,17 @@ public class DatabaseAccess {
                     sql += "'"+value.get(i)+"',";
                 }
             }
+            /* Execute query */
             st = connection.createStatement();
             return st.executeUpdate(sql);
         }
         catch(Exception e){
-			e.printStackTrace();
+			//e.printStackTrace();
         }
         return 0;
     }
     
-    public int updteColumn1(String tableName, String cpf, String novo, String coluna) {
+    public int updateColumn(String tableName, String cpf, String novo, String coluna) {
         Statement st;
 
         try{
@@ -50,7 +52,7 @@ public class DatabaseAccess {
             return st.executeUpdate(sql);
         }
         catch(Exception e){
-			e.printStackTrace();
+			//e.printStackTrace();
         }
         return 0;
     }
