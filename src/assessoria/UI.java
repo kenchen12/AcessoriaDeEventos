@@ -123,7 +123,7 @@ public class UI {
 				this.update();
             }
             else if(input.equals("visualizar")) {
-
+                this.view();
             }
             else if(input.equals("remover")) {
 
@@ -378,7 +378,7 @@ public class UI {
         ResultSetMetaData rsmd = null;
         int nCols = 0;
         Scanner s = new Scanner(System.in);
-        String antigo = null, novo = null, coluna = null;
+        String antigo = null, novo = null;
         int coll = 0;
         boolean exit = false;
 
@@ -394,6 +394,7 @@ public class UI {
         while(true) {
         
             // printar tabela
+            generalView(tableName);
 
             /* Show column names and exit option */
             System.out.println("Digite a coluna que deseja alterar");
@@ -464,7 +465,7 @@ public class UI {
                 
                 if(answer.equals("1") || answer.equals("sim")) {
                     /* Try to update table */
-                    int ret = this.db.updateColumn(tableName, antigo, novo, coluna);
+                    int ret = this.db.updateColumn(tableName, antigo, novo, columnName);
                     /* Update success */
                     if(ret != 0) {
                         System.out.println("Inserção efetuada com sucesso");
@@ -542,4 +543,91 @@ public class UI {
             }
         }
     }    
+
+    private void generalView( String input){
+        ResultSetMetaData rsmd = null;
+        ResultSet ret = this.db.createView(input);
+        Scanner s = new Scanner(System.in);
+        try{
+            ret.next();
+            rsmd = ret.getMetaData();
+            int nCols = rsmd.getColumnCount();
+            while (! ret.isAfterLast()){
+                for(int v = 1; v <= nCols; v++){
+                    System.out.print(ret.getString( rsmd.getColumnName(v) ) + "\t\t\t");
+                }
+                System.out.println();
+                ret.next();
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        if(ret != null) {
+                System.out.println("Vizualização apresentada com sucesso");
+                return;
+        }
+        /* Error */
+        else {
+            System.out.println("Não foi possível vizualizar a tabela selecionada");/*, deseja tentar de novo?");
+            while(true) {
+                System.out.println("1. Sim");
+                System.out.println("2. Não");
+                String ans = s.nextLine();
+                ans = ans.toLowerCase();
+                if(ans.equals("1") || ans.equals("sim")) {
+                    System.out.println("Reinsira o dado\n");
+                    return;
+                }
+                else if(ans.equals("2") || ans.equals("não"))
+                    return;
+                else
+                    System.out.println("Resposta inválida\n");
+            }*/
+        }
+    }
+
+    private void view() {
+        ResultSetMetaData rsmd = null;
+        while(true) {
+            int i = 1;
+            System.out.println("Qual tabela gostaria de vizualizar?");
+            /* Show every table name and exit option */
+            for(String str : this.tableName) {
+                System.out.println(i + ". " + str);
+                i++;
+            }
+            System.out.println(i + ". Sair");
+            
+            /* Getting input and filtering */
+            Scanner s = new Scanner(System.in);
+            String input = s.nextLine();
+            input = filterInsert(input);
+
+            Screen.clear();
+            /* Exit */
+            if(input.equals(Integer.toString(i)) || input.equals("SAIR"))
+                break;
+            /* Invalid input */
+            else if(input.equals("")) {
+                System.out.println("Tabela inválida\n");
+            }
+            /* Get input from user */
+            else {
+                generalView(input);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 }

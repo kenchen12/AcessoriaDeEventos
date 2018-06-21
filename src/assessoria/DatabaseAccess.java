@@ -52,9 +52,23 @@ public class DatabaseAccess {
             return st.executeUpdate(sql);
         }
         catch(Exception e){
-			//e.printStackTrace();
+			e.printStackTrace();
         }
         return 0;
+    }
+
+    public ResultSet createView(String tableName) {
+        Statement st;
+
+        try{
+            st = connection.createStatement();
+            return st.executeQuery("SELECT * FROM "+tableName);
+            /* Execute query */
+        }
+        catch(Exception e){
+			//e.printStackTrace();
+        }
+        return null;
     }
 
     
