@@ -98,7 +98,7 @@ public class UI {
      */
     public void mainMenu() {
         /* if could not connect to db,
-         do not show main menu */
+           do not show main menu */
         if(this.db == null)
             return;
         while(true) {
@@ -162,6 +162,73 @@ public class UI {
         else
             return "";
     }
+
+    private boolean checkFesta(String tableName, ArrayList<String> input) {
+        Statement st1 = null, st2 = null;
+        ResultSet rs1 = null, rs2 = null;
+        ResultSetMetaData rsmd = null;
+        int nCols = 0, n = -1;
+        try {
+            st1 = this.db.getConnection().createStatement();
+            rs1 = st1.executeQuery("SELECT * FROM " + tableName);            
+            rsmd = rs1.getMetaData();
+            nCols = rsmd.getColumnCount();
+        }
+        catch (Exception e) {}
+
+        try {            
+            n = rs1.findColumn("FESTA");
+        }
+        catch (Exception e) {}
+        
+        if(n == -1)
+            return false;
+        String check = input.get(n-1);
+
+        try {
+            st2 = this.db.getConnection().createStatement();
+            rs2 = st2.executeQuery("SELECT NOTA_FISCAL, TIPO FROM FESTA WHERE NOTA_FISCAL='"+check+"'");
+        }
+        catch(Exception e) {}
+
+        switch(tableName) {
+        case "CONTRATO_ANIMADOR":
+        case "CONTRATO_BRINQUEDO":
+            try {
+                if(!rs2.next())
+                    return false;
+                else {
+                    while(!rs2.isAfterLast()) {
+                        if(rs2.getString("NOTA_FISCAL").equals(check) &&
+                           rs2.getString("TIPO").equals("INFANTIL"))
+                            return true;
+                        rs2.next();
+                    }
+                    return false;
+                }
+            }
+            catch(Exception e) {}
+        case "CONTRATO_SOM_LUZ":
+        case "CONTRATO_CERIMONIALISTA":
+        case "CONTRATO_BANDA":
+            try {
+                if(!rs2.next())
+                    return false;
+                else {
+                    while(!rs2.isAfterLast()) {
+                        if(rs2.getString("NOTA_FISCAL").equals(check) &&
+                           rs2.getString("TIPO").equals("CASAMENTO"))
+                            return true;
+                        rs2.next();
+                    }
+                }
+                return false;
+            }
+            catch (Exception e) {}
+        default:
+            return true;
+        }
+    }
     
     private void createInsertInput(String tableName) {
         Statement st = null;
@@ -217,6 +284,13 @@ public class UI {
                 }
             }
 
+            if(!this.checkFesta(tableName, input)) {
+                Screen.clear();
+                System.out.println("Tipo de festa incorreta para o contrato\n");
+                input.clear();
+                continue;
+            }
+            
             System.out.println("Os dados estão corretos?");
             System.out.println("1. Sim");
             System.out.println("2. Não");
