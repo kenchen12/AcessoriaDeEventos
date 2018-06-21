@@ -18,18 +18,6 @@ public class DatabaseAccess {
                     user, pass);
         }catch(Exception e){}
     }
-
-    public ResultSet selectCliente(){
-        Statement st;
-        try{
-            st = connection.createStatement();
-            return st.executeQuery("SELECT * FROM TIME");
-        }
-        catch(Exception e){
-			e.printStackTrace();
-        }
-        return null;
-    }
     
     public int insertColumn(String tableName, ArrayList<String> value) {
         Statement st;
@@ -44,6 +32,20 @@ public class DatabaseAccess {
                     sql += "'"+value.get(i)+"',";
                 }
             }
+            st = connection.createStatement();
+            return st.executeUpdate(sql);
+        }
+        catch(Exception e){
+			e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public int updteColumn1(String tableName, String cpf, String novo, String coluna) {
+        Statement st;
+
+        try{
+            String sql = "UPDATE "+tableName+" SET " + coluna + "= '" + novo + "' WHERE " + coluna + " = '" + cpf + "'";
             st = connection.createStatement();
             return st.executeUpdate(sql);
         }
