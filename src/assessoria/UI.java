@@ -59,9 +59,7 @@ public class UI {
         }
         catch(Exception e) {}
         return tn;
-    }
-    
-
+    }    
 
     private String filterMainMenu(String raw) {
         raw = raw.toLowerCase();
@@ -221,12 +219,13 @@ public class UI {
                     System.out.println("2. Sair");
 
                     String ans = s.nextLine();
-                    if(ans.equals("1") || ans.equals("sim")) {
+                    if(ans.equals("1") || ans.equals("reinserir dados") ||
+                       ans.equals("reinserir")) {
                         System.out.println("Reinsira os dados");
                         input.clear();
                         break;
                     }
-                    else if(ans.equals("2") || ans.equals("não"))
+                    else if(ans.equals("2") || ans.equals("sair"))
                         return;
                     else
                         System.out.println("Resposta inválida");
@@ -234,8 +233,6 @@ public class UI {
             }
         }            
     }
-    
-    
     
     private void insert() {
         while(true) {
@@ -245,7 +242,7 @@ public class UI {
                 System.out.println(i + ". " + str);
                 i++;
             }
-            System.out.println(i + ". RETORNAR");
+            System.out.println(i + ". Sair");
             Scanner s = new Scanner(System.in);
             String input = s.nextLine();
             input = filterInsert(input);
@@ -260,7 +257,46 @@ public class UI {
             }
         }
     }
-    
+
+    private String filterUpdateInput(ResultSetMetaData rsmd, String raw) {
+        raw = raw.toUpperCase();
+        int nCols = 0;
+        int idx = -1;
+        try {
+            idx = Integer.parseInt(raw);
+
+        }
+        catch(Exception e) {}
+        try {
+            nCols = rsmd.getColumnCount();
+        }
+        catch(Exception e) {}
+
+        if(idx >= 1 && idx <= nCols) {
+            String name = "";
+            try {
+                name = rsmd.getColumnName(idx);
+            }
+            catch(Exception e) {}
+            
+            return name;
+        }
+        else if(idx == nCols+1 || raw.equals("SAIR")) {
+            return "SAIR";
+        }
+        
+        for(int i = 1; i <= nCols; i++) {
+            String cName = "";
+            try {
+                cName = rsmd.getColumnName(i);
+            }
+            catch (Exception e) {}
+            if(cName.equals(raw)) {
+                return cName;
+            }
+        }
+        return "";
+    }
     
     private void createUpdateInput(String tableName) {
         Statement st = null;
@@ -270,7 +306,7 @@ public class UI {
         Scanner s = new Scanner(System.in);
         String antigo = null, novo = null, coluna = null;
         int coll = 0;
-        
+        boolean exit = false;
         try {
             st = this.db.getConnection().createStatement();
             rs = st.executeQuery("SELECT * FROM " + tableName);
@@ -278,106 +314,109 @@ public class UI {
             nCols = rsmd.getColumnCount();
         }
         catch (Exception e) {}
+
+        while(true) {
         
-        System.out.println("Digite a coluna que deseja alterar ");
-        for(int col = 1; col <= nCols; col++) {
+            // printar tabela
+        
+            System.out.println("Digite a coluna que deseja alterar");
+            for(int col = 1; col <= nCols; col++) {
                 String name = null;
                 try {
                     name = rsmd.getColumnName(col);
                 }
                 catch (Exception e) {}
-				System.out.println(col + ". " + name);
-        }
-        System.out.println( (nCols+1) + ". Sair");
+                System.out.println(col + ". " + name);
+            }
+            System.out.println(nCols+1 + ". Sair");
             
-        String scoluna = s.nextLine();
+            String columnName = s.nextLine();
+            columnName = this.filterUpdateInput(rsmd, columnName);
 
-        try {
-			coll = Integer.parseInt(scoluna);
-			coluna = rsmd.getColumnName(coll);
-		}
-		catch(Exception e) {}
+            if(columnName.equals("")) {
+                System.out.println("Coluna inválida");
+                continue;
+            }
+            else if(columnName.equals("SAIR")) {
+                exit = true;
+                break;
+            }
+            if(exit)
+                break;
         
-        
-        while (true){	
-			
-			while (true){
+            while (true){	
+                while (true){
+                    System.out.println("Digite o valor de "+columnName+" a ser alterado: ");
+                    antigo = s.nextLine();
 				
-				System.out.println("Digite o dado antigo do cliente a ser alterado");
-				antigo = s.nextLine();
+                    System.out.println("Digite o novo valor: ");
+                    novo = s.nextLine();
 				
-				System.out.println("Digite o novo nome a ser inserido");
-				novo = s.nextLine();
+                    int nullable = 0;
+                    try {
+                        nullable = rsmd.isNullable(coll);
+                    }
+                    catch(Exception e) {}
+                    if(novo.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
+                        System.out.println("Valor inválido. Este campo é obrigatório");
+                    }
+                    else {
+                        break;
+                    }
+                }
 				
-				
-				int nullable = 0;
-				try {
-					nullable = rsmd.isNullable(coll);
-				}
-				catch(Exception e) {}
-				if(novo.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
-					System.out.println("Valor inválido. Este campo é obrigatório");
-				}
-				else {
-					break;
-				}
-			}
-				
-				
-			System.out.println("O novo dado está correto?");
-			System.out.println("1. Sim");
-			System.out.println("2. Não");
+                System.out.println("O novo dado está correto?");
+                System.out.println("1. Sim");
+                System.out.println("2. Não");
 
-			String answer = s.nextLine();
-			answer = answer.toLowerCase();
+                String answer = s.nextLine();
+                answer = answer.toLowerCase();
 
-			if(answer.equals("1") || answer.equals("sim")) {
-				int ret = this.db.updteColumn1(tableName, antigo, novo, coluna);
-				if(ret != 0) {
-					System.out.println("Inserção efetuada com sucesso");
-					break;
-				}
-				else {
-					System.out.println("Não foi possível inserir, deseja inserir de novo?");
-					while(true) {
-						System.out.println("1. Sim");
-						System.out.println("2. Não");
-						String ans = s.nextLine();
-						ans = ans.toLowerCase();
-						if(ans.equals("1") || ans.equals("sim")) {
-							System.out.println("reinsira o dado");
-							break;
-						}
-						else if(ans.equals("2") || ans.equals("não"))
-							return;
-						else
-							System.out.println("Resposta inválida");
-					}
-				}
-			}
-			else if(answer.equals("2") || answer.equals("não")) {
-				System.out.println("O que deseja fazer?");
-				while(true) {
-					System.out.println("1. Reinserir dados");
-					System.out.println("2. Sair");
+                if(answer.equals("1") || answer.equals("sim")) {
+                    int ret = this.db.updteColumn1(tableName, antigo, novo, coluna);
+                    if(ret != 0) {
+                        System.out.println("Inserção efetuada com sucesso");
+                        break;
+                    }
+                    else {
+                        System.out.println("Não foi possível inserir, deseja inserir de novo?");
+                        while(true) {
+                            System.out.println("1. Sim");
+                            System.out.println("2. Não");
+                            String ans = s.nextLine();
+                            ans = ans.toLowerCase();
+                            if(ans.equals("1") || ans.equals("sim")) {
+                                System.out.println("reinsira o dado");
+                                break;
+                            }
+                            else if(ans.equals("2") || ans.equals("não"))
+                                return;
+                            else
+                                System.out.println("Resposta inválida");
+                        }
+                    }
+                }
+                else if(answer.equals("2") || answer.equals("não")) {
+                    System.out.println("O que deseja fazer?");
+                    while(true) {
+                        System.out.println("1. Reinserir dados");
+                        System.out.println("2. Sair");
 
-					String ans = s.nextLine();
-					if(ans.equals("1") || ans.equals("sim")) {
-						System.out.println("Reinsira os dados");
-						break;
-					}
-					else if(ans.equals("2") || ans.equals("não"))
-						return;
-					else
-						System.out.println("Resposta inválida");
-				}
-			}
+                        String ans = s.nextLine();
+                        if(ans.equals("1") || ans.equals("reinserir dados") ||
+                           ans.equals("reinserir")) {
+                            System.out.println("Reinsira os dados");
+                            break;
+                        }
+                        else if(ans.equals("2") || ans.equals("sair"))
+                            return;
+                        else
+                            System.out.println("Resposta inválida");
+                    }
+                }
+            }
         }
     }
-    
-    
-    
-    
     
     private void update() {
         while(true) {
@@ -387,7 +426,7 @@ public class UI {
                 System.out.println(i + ". " + str);
                 i++;
             }
-            System.out.println(i + ". RETORNAR");
+            System.out.println(i + ". Sair");
             Scanner s = new Scanner(System.in);
             String input = s.nextLine();
             input = filterInsert(input);
@@ -401,15 +440,5 @@ public class UI {
                 this.createUpdateInput(input);
             }
         }
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    }    
 }
