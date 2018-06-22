@@ -98,7 +98,7 @@ public class UI {
      */
     public void mainMenu() {
         /* if could not connect to db,
-         do not show main menu */
+           do not show main menu */
         if(this.db == null)
             return;
         while(true) {
@@ -162,6 +162,7 @@ public class UI {
         else
             return "";
     }
+
     
     private void createInsertInput(String tableName) {
         Statement st = null;
@@ -217,6 +218,25 @@ public class UI {
                 }
             }
 
+            if(!Check.contratoFesta(this.db, tableName, input)) {
+                Screen.clear();
+                System.out.println("Tipo de festa incorreta para o contrato\n");
+                input.clear();
+                continue;
+            }
+            else if(!Check.tipoLocal(this.db, tableName, input)) {
+                Screen.clear();
+                System.out.println("Tipo de local incorreto para o valor inserido\n");
+                input.clear();
+                continue;
+            }
+            else if(!Check.festaLocal(this.db, tableName, input)) {
+                Screen.clear();
+                System.out.println("Tipo de local inválido para tipo de festa\n");
+                input.clear();
+                continue;
+            }
+            
             System.out.println("Os dados estão corretos?");
             System.out.println("1. Sim");
             System.out.println("2. Não");
@@ -453,6 +473,25 @@ public class UI {
                     }
                 }
 
+                if(!Check.contratoFesta(this.db, tableName, input)) {
+                    Screen.clear();
+                    System.out.println("Tipo de festa incorreta para o contrato\n");
+                    input.clear();
+                    continue;
+                }
+                else if(!Check.tipoLocal(this.db, tableName, input)) {
+                    Screen.clear();
+                    System.out.println("Tipo de local incorreto para o valor inserido\n");
+                    input.clear();
+                    continue;
+                }
+                else if(!Check.festaLocal(this.db, tableName, input)) {
+                    Screen.clear();
+                    System.out.println("Tipo de local inválido para tipo de festa\n");
+                    input.clear();
+                    continue;
+                }
+                
                 /* Confirmation prompt */
                 System.out.println("O novo dado está correto?");
                 System.out.println("1. Sim");
