@@ -58,7 +58,4 @@ public class Utils{
     }
     return result.toString();
   }
-  private void formatDateHour(List<List<String>> table){
-    
-  }
 }

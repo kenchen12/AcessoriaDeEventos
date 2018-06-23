@@ -612,7 +612,6 @@ public class UI {
                 output.add(aux);
                 ret.next();
             }
-            System.out.println(output);
             System.out.println(Utils.formatOutput(output));
         }
         catch(Exception e){
