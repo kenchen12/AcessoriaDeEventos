@@ -72,11 +72,11 @@ public class UI {
         }
         catch(Exception e) {}
         return tn;
-    }    
+    }
 
     private String filterMainMenu(String raw) {
         raw = raw.toLowerCase();
-        
+
         /* return what the user types */
         if(raw.equals("1") || raw.equals("inserir"))
             return "inserir";
@@ -163,7 +163,7 @@ public class UI {
             return "";
     }
 
-    
+
     private void createInsertInput(String tableName) {
         Statement st = null;
         ResultSet rs = null;
@@ -173,7 +173,7 @@ public class UI {
         String aux = null;
         ArrayList<String> input = new ArrayList<String>();
 
-        /* get every column name and number of columns 
+        /* get every column name and number of columns
            from table chosen */
         try {
             st = this.db.getConnection().createStatement();
@@ -182,7 +182,7 @@ public class UI {
             nCols = rsmd.getColumnCount();
         }
         catch (Exception e) {}
-        
+
         System.out.println("Digite os dados a serem inseridos");
 
         while(true) {
@@ -205,7 +205,7 @@ public class UI {
                         nullable = rsmd.isNullable(col);
                     }
                     catch(Exception e) {}
-                    
+
                     /* if user type empty string on 'NOT NULL' field, show error */
                     if(aux.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
                         System.out.println("Valor inválido. Este campo é obrigatório");
@@ -236,7 +236,7 @@ public class UI {
                 input.clear();
                 continue;
             }
-            
+
             System.out.println("Os dados estão corretos?");
             System.out.println("1. Sim");
             System.out.println("2. Não");
@@ -286,7 +286,7 @@ public class UI {
             else if(answer.equals("2") || answer.equals("não")) {
                 Screen.clear();
                 System.out.println("O que deseja fazer?");
-                
+
                 /* Ask to quit o reinsert wrong data */
                 while(true) {
                     System.out.println("1. Reinserir dados");
@@ -311,9 +311,9 @@ public class UI {
                     }
                 }
             }
-        }            
+        }
     }
-    
+
     private void insert() {
         while(true) {
             int i = 1;
@@ -324,7 +324,7 @@ public class UI {
                 i++;
             }
             System.out.println(i + ". Sair");
-            
+
             /* Getting input and filtering */
             Scanner s = new Scanner(System.in);
             String input = s.nextLine();
@@ -354,7 +354,7 @@ public class UI {
             idx = Integer.parseInt(raw);
         }
         catch(Exception e) {}
-        
+
         /* Get number of columns */
         try {
             nCols = rsmd.getColumnCount();
@@ -368,7 +368,7 @@ public class UI {
                 name = rsmd.getColumnName(idx);
             }
             catch(Exception e) {}
-            
+
             return name;
         }
         /* 'Exit' option */
@@ -391,7 +391,7 @@ public class UI {
         /* Return empty string for invalid input */
         return "";
     }
-    
+
     private void createUpdateInput(String tableName) {
         Statement st = null;
         ResultSet rs = null;
@@ -412,7 +412,7 @@ public class UI {
         catch (Exception e) {}
 
         while(true) {
-        
+
             // printar tabela
             generalView(tableName);
 
@@ -446,13 +446,13 @@ public class UI {
             }
             if(exit)
                 break;
-        
-            while (true){	
+
+            while (true){
                 /* Prompt to enter old and new values to update */
                 while (true){
                     System.out.println("Digite o valor de "+columnName+" a ser alterado: ");
                     antigo = s.nextLine();
-				
+
                     System.out.println("Digite o novo valor: ");
                     novo = s.nextLine();
 
@@ -462,7 +462,7 @@ public class UI {
                         nullable = rsmd.isNullable(coll);
                     }
                     catch(Exception e) {}
-                    
+
                     /* Prompt error on empty field when column is 'NOT NULL' */
                     if(novo.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
                         System.out.println("Valor inválido. Este campo é obrigatório");
@@ -472,7 +472,7 @@ public class UI {
                         break;
                     }
                 }
-                
+
                 /* Confirmation prompt */
                 System.out.println("O novo dado está correto?");
                 System.out.println("1. Sim");
@@ -482,7 +482,7 @@ public class UI {
                 answer = answer.toLowerCase();
 
                 Screen.clear();
-                
+
                 if(answer.equals("1") || answer.equals("sim")) {
                     /* Try to update table */
                     int ret = this.db.updateColumn(tableName, antigo, novo, columnName);
@@ -533,7 +533,7 @@ public class UI {
             }
         }
     }
-    
+
     private void update() {
         while(true) {
             int i = 1;
@@ -562,7 +562,7 @@ public class UI {
                 this.createUpdateInput(input);
             }
         }
-    }    
+    }
 
     private void generalView( String input){
         ResultSetMetaData rsmd = null;
@@ -618,7 +618,7 @@ public class UI {
                 i++;
             }
             System.out.println(i + ". Sair");
-            
+
             /* Getting input and filtering */
             Scanner s = new Scanner(System.in);
             String input = s.nextLine();
@@ -660,7 +660,7 @@ public class UI {
         catch (Exception e) {}
 
         while(true) {
-        
+
             // printar tabela
             generalView(tableName);
 
@@ -694,8 +694,8 @@ public class UI {
             }
             if(exit)
                 break;
-        
-            while (true){	
+
+            while (true){
                 /* Prompt to enter value to remove */
                 while (true){
                     System.out.println("Digite o valor de "+columnName+" a ser removido: ");
@@ -707,7 +707,7 @@ public class UI {
                         nullable = rsmd.isNullable(coll);
                     }
                     catch(Exception e) {}
-                    
+
                     /* Prompt error on empty field when column is 'NOT NULL' */
                     if(valor.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
                         System.out.println("Valor inválido. Este campo é obrigatório");
@@ -717,7 +717,7 @@ public class UI {
                         break;
                     }
                 }
-                
+
                 /* Confirmation prompt */
                 System.out.println("O dado está correto?");
                 System.out.println("1. Sim");
@@ -727,7 +727,7 @@ public class UI {
                 answer = answer.toLowerCase();
 
                 Screen.clear();
-                
+
                 if(answer.equals("1") || answer.equals("sim")) {
                     /* Try to update table */
                     int ret = this.db.removeColumn(tableName, valor, columnName);
@@ -790,7 +790,7 @@ public class UI {
                 i++;
             }
             System.out.println(i + ". Sair");
-            
+
             /* Getting input and filtering */
             Scanner s = new Scanner(System.in);
             String input = s.nextLine();
