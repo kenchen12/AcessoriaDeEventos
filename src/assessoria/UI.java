@@ -86,7 +86,15 @@ public class UI {
             return "visualizar";
         else if(raw.equals("4") || raw.equals("remover"))
             return "remover";
-        else if(raw.equals("5") || raw.equals("sair"))
+        else if(raw.equals("5") || raw.equals("select1"))
+            return "select1";
+        else if(raw.equals("6") || raw.equals("select2"))
+            return "select2";
+        else if(raw.equals("7") || raw.equals("select3"))
+            return "select3";
+        else if(raw.equals("8") || raw.equals("select4"))
+            return "select4";
+        else if(raw.equals("9") || raw.equals("sair"))
             return "sair";
         else
             return "";
@@ -107,7 +115,11 @@ public class UI {
             System.out.println("2. Atualizar");
             System.out.println("3. Visualizar");
             System.out.println("4. Remover");
-            System.out.println("5. Sair");
+            System.out.println("5. Select1");
+            System.out.println("6. Select2");
+            System.out.println("7. Select3");
+            System.out.println("8. Select4");
+            System.out.println("9. Sair");
 
             /* Get input and filter it */
             Scanner s = new Scanner(System.in);
@@ -127,6 +139,18 @@ public class UI {
             }
             else if(input.equals("remover")) {
                 this.remove();
+            }
+            else if(input.equals("select1")) {
+                this.select1();
+            }
+            else if(input.equals("select2")) {
+                this.select2();
+            }
+            else if(input.equals("select3")) {
+                this.select3();
+            }
+            else if(input.equals("select4")) {
+                this.select4();
             }
             else if(input.equals("sair")) {
                 break;
@@ -811,7 +835,157 @@ public class UI {
         }
     }
 
+    private void select1() {
+        ResultSetMetaData rsmd = null;
+        while(true) {
+            int i = 1;
+            System.out.println("NOME DOS CLIENTES E TODOS SEUS CONVIDADOS NAS FESTAS ENTRE 2010 E 2018 ORDENADOS PELO NOME DOS CLIENTES");
+            
+            ResultSet ret = this.db.select1();
 
+            try{
+                ret.next();
+                rsmd = ret.getMetaData();
+                int nCols = rsmd.getColumnCount();
+                while (! ret.isAfterLast()){
+                    for(int v = 1; v <= nCols; v++){
+                        System.out.print(ret.getString( rsmd.getColumnName(v) ) + "\t\t\t");
+                    }
+                    System.out.println();
+                    ret.next();
+                }
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+
+            /* Update success */
+            if(ret != null) {
+                System.out.println("Select executdo com sucesso.");
+                return;
+            }
+            /* Error */
+            else {
+                System.out.println("Não foi possível fazer o select\n");
+                return;
+            }
+
+        }
+    }
+
+    private void select2() {
+        ResultSetMetaData rsmd = null;
+        while(true) {
+            int i = 1;
+            System.out.println("NOME E QUANTIDADE DE FESTAS DE CASAMENTO EM QUE CADA EQUIPE DE BUFE PARTICIPOU");
+            
+            ResultSet ret = this.db.select2();
+
+            try{
+                ret.next();
+                rsmd = ret.getMetaData();
+                int nCols = rsmd.getColumnCount();
+                while (! ret.isAfterLast()){
+                    for(int v = 1; v <= nCols; v++){
+                        System.out.print(ret.getString( rsmd.getColumnName(v) ) + "\t\t\t");
+                    }
+                    System.out.println();
+                    ret.next();
+                }
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+
+            /* Update success */
+            if(ret != null) {
+                System.out.println("Select executdo com sucesso.");
+                return;
+            }
+            /* Error */
+            else {
+                System.out.println("Não foi possível fazer o select\n");
+                return;
+            }
+
+        }
+    }
+
+    private void select3() {
+        ResultSetMetaData rsmd = null;
+        while(true) {
+            int i = 1;
+            System.out.println("CPF E NOME ARTISTICO DE CADA ANIMADOR QUE PARTICIPOU DE PELO MENOS DUAS FESTA EM 2018");
+            
+            ResultSet ret = this.db.select3();
+
+            try{
+                ret.next();
+                rsmd = ret.getMetaData();
+                int nCols = rsmd.getColumnCount();
+                while (! ret.isAfterLast()){
+                    for(int v = 1; v <= nCols; v++){
+                        System.out.print(ret.getString( rsmd.getColumnName(v) ) + "\t\t\t");
+                    }
+                    System.out.println();
+                    ret.next();
+                }
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+
+            /* Update success */
+            if(ret != null) {
+                System.out.println("Select executdo com sucesso.");
+                return;
+            }
+            /* Error */
+            else {
+                System.out.println("Não foi possível fazer o select\n");
+                return;
+            }
+
+        }
+    }
+
+    private void select4() {
+        ResultSetMetaData rsmd = null;
+        while(true) {
+            int i = 1;
+            System.out.println("SELECIONAR NOTA FISCAL DE TODAS AS FESTAS E PARA AS QUE POSSUIREM, APRESENAR O NOME DA BANDA E SEU GENERO");
+            
+            ResultSet ret = this.db.select4();
+
+            try{
+                ret.next();
+                rsmd = ret.getMetaData();
+                int nCols = rsmd.getColumnCount();
+                while (! ret.isAfterLast()){
+                    for(int v = 1; v <= nCols; v++){
+                        System.out.print(ret.getString( rsmd.getColumnName(v) ) + "\t\t\t");
+                    }
+                    System.out.println();
+                    ret.next();
+                }
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+
+            /* Update success */
+            if(ret != null) {
+                System.out.println("Select executdo com sucesso.");
+                return;
+            }
+            /* Error */
+            else {
+                System.out.println("Não foi possível fazer o select\n");
+                return;
+            }
+
+        }
+    }
 
 
 

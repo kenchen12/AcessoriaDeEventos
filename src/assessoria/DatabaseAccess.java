@@ -71,6 +71,58 @@ public class DatabaseAccess {
         return 0;
     }
 
+    public ResultSet select1() {
+        Statement st;
+
+        try{
+            st = connection.createStatement();
+            return st.executeQuery("SELECT CLIENTE.NOME, CONVIDADO.NOME FROM FESTA JOIN CLIENTE ON (FESTA.CLIENTE = CLIENTE.CPF) AND ( EXTRACT(YEAR FROM FESTA.DATA_HORA) >= 2010) AND ( EXTRACT(YEAR FROM FESTA.DATA_HORA) <= 2018) JOIN CONVIDADO ON (CONVIDADO.FESTA = FESTA.NOTA_FISCAL) ORDER BY CLIENTE.NOME");
+        }
+        catch(Exception e){
+			e.printStackTrace();
+        }
+        return null;
+    }
+
+    public ResultSet select2() {
+        Statement st;
+
+        try{
+            st = connection.createStatement();
+            return st.executeQuery("SELECT EQUIPE_BUFE.NOME, COUNT(EQUIPE_BUFE.CNPJ) AS QUANTIDADE FROM FESTA JOIN EQUIPE_BUFE ON (FESTA.EQUIPE_BUFE = EQUIPE_BUFE.CNPJ) AND (FESTA.TIPO = 'CASAMENTO') GROUP BY EQUIPE_BUFE.CNPJ, EQUIPE_BUFE.NOME");
+        }
+        catch(Exception e){
+			e.printStackTrace();
+        }
+        return null;
+    }
+
+    public ResultSet select3() {
+        Statement st;
+
+        try{
+            st = connection.createStatement();
+            return st.executeQuery("SELECT ANIMADOR.CPF, ANIMADOR.NOME_ARTISTICO FROM FESTA JOIN CONTRATO_ANIMADOR ON (FESTA.NOTA_FISCAL = CONTRATO_ANIMADOR.FESTA) AND (EXTRACT(YEAR FROM FESTA.DATA_HORA) = 2018) JOIN PROFISSAO ON (PROFISSAO.ANIMADOR = CONTRATO_ANIMADOR.ANIMADOR) JOIN ANIMADOR ON (ANIMADOR.CPF = PROFISSAO.ANIMADOR) GROUP BY ANIMADOR.CPF, ANIMADOR.NOME_ARTISTICO HAVING (COUNT(ANIMADOR.CPF) >= 2");
+        }
+        catch(Exception e){
+			e.printStackTrace();
+        }
+        return null;
+    }
+
+    public ResultSet select4() {
+        Statement st;
+
+        try{
+            st = connection.createStatement();
+            return st.executeQuery("SELECT FESTA.NOTA_FISCAL, BANDA.NOME, BANDA.GENERO FROM CONTRATO_BANDA JOIN BANDA ON (CONTRATO_BANDA.CPF = BANDA.CPF) AND (CONTRATO_BANDA.NOME = BANDA.NOME) RIGHT JOIN FESTA ON (FESTA.NOTA_FISCAL = CONTRATO_BANDA.FESTA)");
+        }
+        catch(Exception e){
+			e.printStackTrace();
+        }
+        return null;
+    }
+
     public ResultSet createView(String tableName) {
         Statement st;
 
