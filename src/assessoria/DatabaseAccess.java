@@ -8,9 +8,9 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
 public class DatabaseAccess {
-    
+
     private Connection connection;
-    
+
     public DatabaseAccess(String user, String pass){
         try{
             Class.forName("oracle.jdbc.driver.OracleDriver");
@@ -19,7 +19,7 @@ public class DatabaseAccess {
                     user, pass);
         }catch(Exception e){}
     }
-    
+
     public int insertColumn(String tableName, ArrayList<String> value) {
         Statement st;
 
@@ -56,6 +56,7 @@ public class DatabaseAccess {
             }
             /* Execute query */
             st = connection.createStatement();
+            sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
         catch(Exception e){
@@ -63,7 +64,7 @@ public class DatabaseAccess {
         }
         return 0;
     }
-    
+  
     public int updateColumn(String tableName, String antigo, String novo, String coluna) {
         Statement st;
 
@@ -91,6 +92,7 @@ public class DatabaseAccess {
             else
                 sql += "'"+antigo+"'";
             st = connection.createStatement();
+            sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
         catch(Exception e){
@@ -118,6 +120,7 @@ public class DatabaseAccess {
             else
                 sql += "'"+valor+"'";
             st = connection.createStatement();
+            sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
         catch(Exception e){
@@ -157,7 +160,7 @@ public class DatabaseAccess {
 
         try{
             st = connection.createStatement();
-            return st.executeQuery("SELECT ANIMADOR.CPF, ANIMADOR.NOME_ARTISTICO FROM FESTA JOIN CONTRATO_ANIMADOR ON (FESTA.NOTA_FISCAL = CONTRATO_ANIMADOR.FESTA) AND (EXTRACT(YEAR FROM FESTA.DATA_HORA) = 2018) JOIN PROFISSAO ON (PROFISSAO.ANIMADOR = CONTRATO_ANIMADOR.ANIMADOR) JOIN ANIMADOR ON (ANIMADOR.CPF = PROFISSAO.ANIMADOR) GROUP BY ANIMADOR.CPF, ANIMADOR.NOME_ARTISTICO HAVING (COUNT(ANIMADOR.CPF) >= 2");
+            return st.executeQuery("SELECT ANIMADOR.CPF, ANIMADOR.NOME_ARTISTICO FROM FESTA JOIN CONTRATO_ANIMADOR ON (FESTA.NOTA_FISCAL = CONTRATO_ANIMADOR.FESTA) AND (EXTRACT(YEAR FROM FESTA.DATA_HORA) = 2018) JOIN PROFISSAO ON (PROFISSAO.ANIMADOR = CONTRATO_ANIMADOR.ANIMADOR) JOIN ANIMADOR ON (ANIMADOR.CPF = PROFISSAO.ANIMADOR) GROUP BY ANIMADOR.CPF, ANIMADOR.NOME_ARTISTICO HAVING (COUNT(ANIMADOR.CPF)) >= 2");
         }
         catch(Exception e){
 			e.printStackTrace();
@@ -192,7 +195,7 @@ public class DatabaseAccess {
         return null;
     }
 
-    
+
     public Connection getConnection() {
         return this.connection;
     }
