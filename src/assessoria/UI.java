@@ -126,7 +126,7 @@ public class UI {
                 this.view();
             }
             else if(input.equals("remover")) {
-
+                this.remove();
             }
             else if(input.equals("sair")) {
                 break;
@@ -640,6 +640,176 @@ public class UI {
     }
 
 
+    private void createRemove(String tableName) {
+        Statement st = null;
+        ResultSet rs = null;
+        ResultSetMetaData rsmd = null;
+        int nCols = 0;
+        Scanner s = new Scanner(System.in);
+        String valor = null;
+        int coll = 0;
+        boolean exit = false;
+
+        /* Get every table column and number of columns */
+        try {
+            st = this.db.getConnection().createStatement();
+            rs = st.executeQuery("SELECT * FROM " + tableName);
+            rsmd = rs.getMetaData();
+            nCols = rsmd.getColumnCount();
+        }
+        catch (Exception e) {}
+
+        while(true) {
+        
+            // printar tabela
+            generalView(tableName);
+
+            /* Show column names and exit option */
+            System.out.println("Digite a coluna que deseja utilizar para remover");
+            for(int col = 1; col <= nCols; col++) {
+                String name = null;
+                try {
+                    name = rsmd.getColumnName(col);
+                }
+                catch (Exception e) {}
+                System.out.println(col + ". " + name);
+            }
+            System.out.println(nCols+1 + ". Sair");
+
+            /* Get and filter input */
+            String columnName = s.nextLine();
+            columnName = this.filterUpdateInput(rsmd, columnName);
+
+            /* Empty string is invalid option */
+            if(columnName.equals("")) {
+                Screen.clear();
+                System.out.println("Coluna inválida\n");
+                continue;
+            }
+            /* Exit */
+            else if(columnName.equals("SAIR")) {
+                Screen.clear();
+                exit = true;
+                break;
+            }
+            if(exit)
+                break;
+        
+            while (true){	
+                /* Prompt to enter value to remove */
+                while (true){
+                    System.out.println("Digite o valor de "+columnName+" a ser removido: ");
+                    valor = s.nextLine();
+
+                    /* Check if column is 'NOT NULL' */
+                    int nullable = 0;
+                    try {
+                        nullable = rsmd.isNullable(coll);
+                    }
+                    catch(Exception e) {}
+                    
+                    /* Prompt error on empty field when column is 'NOT NULL' */
+                    if(valor.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
+                        System.out.println("Valor inválido. Este campo é obrigatório");
+                    }
+                    /* Both inputs have valid values */
+                    else {
+                        break;
+                    }
+                }
+                
+                /* Confirmation prompt */
+                System.out.println("O dado está correto?");
+                System.out.println("1. Sim");
+                System.out.println("2. Não");
+
+                String answer = s.nextLine();
+                answer = answer.toLowerCase();
+
+                Screen.clear();
+                
+                if(answer.equals("1") || answer.equals("sim")) {
+                    /* Try to update table */
+                    int ret = this.db.removeColumn(tableName, valor, columnName);
+                    /* Update success */
+                    if(ret != 0) {
+                        System.out.println("Remoção efetuada com sucesso");
+                        break;
+                    }
+                    /* Error */
+                    else {
+                        System.out.println("Não foi possível remover, deseja tentar de novo?\n");
+                        while(true) {
+                            System.out.println("1. Sim");
+                            System.out.println("2. Não");
+                            String ans = s.nextLine();
+                            ans = ans.toLowerCase();
+                            if(ans.equals("1") || ans.equals("sim")) {
+                                System.out.println("Reinsira o dado\n");
+                                break;
+                            }
+                            else if(ans.equals("2") || ans.equals("não"))
+                                return;
+                            else
+                                System.out.println("Resposta inválida\n");
+                        }
+                    }
+                }
+                /* If data is incorrect */
+                else if(answer.equals("2") || answer.equals("não")) {
+                    System.out.println("O que deseja fazer?");
+                    while(true) {
+                        System.out.println("1. Reinserir dados");
+                        System.out.println("2. Sair");
+
+                        String ans = s.nextLine();
+                        Screen.clear();
+                        if(ans.equals("1") || ans.equals("reinserir dados") ||
+                           ans.equals("reinserir")) {
+                            System.out.println("Reinsira os dados\n");
+                            break;
+                        }
+                        else if(ans.equals("2") || ans.equals("sair"))
+                            return;
+                        else
+                            System.out.println("Resposta inválida\n");
+                    }
+                }
+            }
+        }
+    }
+
+
+    private void remove() {
+        while(true) {
+            int i = 1;
+            System.out.println("Em qual tabela gostaria de fazer a remoção?");
+            /* Show every table name and exit option */
+            for(String str : this.tableName) {
+                System.out.println(i + ". " + str);
+                i++;
+            }
+            System.out.println(i + ". Sair");
+            
+            /* Getting input and filtering */
+            Scanner s = new Scanner(System.in);
+            String input = s.nextLine();
+            input = filterInsert(input);
+
+            Screen.clear();
+            /* Exit */
+            if(input.equals(Integer.toString(i)) || input.equals("SAIR"))
+                break;
+            /* Invalid input */
+            else if(input.equals("")) {
+                System.out.println("Tabela inválida\n");
+            }
+            /* Get input from user */
+            else {
+                this.createRemove(input);
+            }
+        }
+    }
 
 
 

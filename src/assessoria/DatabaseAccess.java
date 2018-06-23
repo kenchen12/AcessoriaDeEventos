@@ -57,6 +57,20 @@ public class DatabaseAccess {
         return 0;
     }
 
+    public int removeColumn(String tableName, String valor, String coluna) {
+        Statement st;
+
+        try{
+            String sql = "DELETE FROM "+tableName+" WHERE " + coluna + "= '" + valor + "'";
+            st = connection.createStatement();
+            return st.executeUpdate(sql);
+        }
+        catch(Exception e){
+			e.printStackTrace();
+        }
+        return 0;
+    }
+
     public ResultSet createView(String tableName) {
         Statement st;
 
