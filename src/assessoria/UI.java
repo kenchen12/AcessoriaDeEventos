@@ -596,6 +596,10 @@ public class UI {
             ret.next();
             rsmd = ret.getMetaData();
             int nCols = rsmd.getColumnCount();
+            for(int v = 1; v <= nCols; v++){
+                System.out.print(rsmd.getColumnName(v) + "\t\t\t");
+            }
+            System.out.println();
             while (! ret.isAfterLast()){
                 for(int v = 1; v <= nCols; v++){
                     System.out.print(ret.getString( rsmd.getColumnName(v) ) + "\t\t\t");
