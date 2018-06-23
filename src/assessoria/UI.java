@@ -1,6 +1,7 @@
 package assessoria;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -592,21 +593,27 @@ public class UI {
         ResultSetMetaData rsmd = null;
         ResultSet ret = this.db.createView(input);
         Scanner s = new Scanner(System.in);
+        List<List<String>> output = new ArrayList<>();
+        List<String> aux = new ArrayList<>();
         try{
             ret.next();
             rsmd = ret.getMetaData();
             int nCols = rsmd.getColumnCount();
             for(int v = 1; v <= nCols; v++){
-                System.out.print(rsmd.getColumnName(v) + "\t\t\t");
+                aux.add(rsmd.getColumnName(v));
             }
-            System.out.println();
+
+            output.add(aux);
             while (! ret.isAfterLast()){
+                aux = new ArrayList<>();
                 for(int v = 1; v <= nCols; v++){
-                    System.out.print(ret.getString( rsmd.getColumnName(v) ) + "\t\t\t");
+                    aux.add(ret.getString( rsmd.getColumnName(v)));
                 }
-                System.out.println();
+                output.add(aux);
                 ret.next();
             }
+            System.out.println(output);
+            System.out.println(Utils.formatOutput(output));
         }
         catch(Exception e){
             e.printStackTrace();
@@ -844,7 +851,7 @@ public class UI {
         while(true) {
             int i = 1;
             System.out.println("NOME DOS CLIENTES E TODOS SEUS CONVIDADOS NAS FESTAS ENTRE 2010 E 2018 ORDENADOS PELO NOME DOS CLIENTES");
-            
+
             ResultSet ret = this.db.select1();
 
             try{
@@ -882,7 +889,7 @@ public class UI {
         while(true) {
             int i = 1;
             System.out.println("NOME E QUANTIDADE DE FESTAS DE CASAMENTO EM QUE CADA EQUIPE DE BUFE PARTICIPOU");
-            
+
             ResultSet ret = this.db.select2();
 
             try{
@@ -920,7 +927,7 @@ public class UI {
         while(true) {
             int i = 1;
             System.out.println("CPF E NOME ARTISTICO DE CADA ANIMADOR QUE PARTICIPOU DE PELO MENOS DUAS FESTA EM 2018");
-            
+
             ResultSet ret = this.db.select3();
 
             try{
@@ -958,7 +965,7 @@ public class UI {
         while(true) {
             int i = 1;
             System.out.println("SELECIONAR NOTA FISCAL DE TODAS AS FESTAS E PARA AS QUE POSSUIREM, APRESENAR O NOME DA BANDA E SEU GENERO");
-            
+
             ResultSet ret = this.db.select4();
 
             try{
