@@ -472,25 +472,6 @@ public class UI {
                         break;
                     }
                 }
-
-                if(!Check.contratoFesta(this.db, tableName, input)) {
-                    Screen.clear();
-                    System.out.println("Tipo de festa incorreta para o contrato\n");
-                    input.clear();
-                    continue;
-                }
-                else if(!Check.tipoLocal(this.db, tableName, input)) {
-                    Screen.clear();
-                    System.out.println("Tipo de local incorreto para o valor inserido\n");
-                    input.clear();
-                    continue;
-                }
-                else if(!Check.festaLocal(this.db, tableName, input)) {
-                    Screen.clear();
-                    System.out.println("Tipo de local inválido para tipo de festa\n");
-                    input.clear();
-                    continue;
-                }
                 
                 /* Confirmation prompt */
                 System.out.println("O novo dado está correto?");
