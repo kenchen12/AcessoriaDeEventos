@@ -270,18 +270,17 @@ public class UI {
             answer = answer.toLowerCase();
 
             if(answer.equals("1") || answer.equals("sim")) {
+                Screen.clear();
                 /* Trying to insert on table */
                 int ret = this.db.insertColumn(tableName, input);
 
                 /* Success */
                 if(ret != 0) {
-                    Screen.clear();
                     System.out.println("Inserção efetuada com sucesso");
                     break;
                 }
                 /* Error on insertion */
                 else {
-                    Screen.clear();
                     System.out.println("Não foi possível inserir, deseja inserir de novo?");
                     while(true) {
                         System.out.println("1. Sim");
@@ -292,7 +291,7 @@ public class UI {
                         Screen.clear();
                         /* Reinsert data */
                         if(ans.equals("1") || ans.equals("sim")) {
-                            System.out.println("Reinsira os dados");
+                            System.out.println("Reinsira os dados\n");
                             input.clear();
                             break;
                         }
@@ -322,7 +321,7 @@ public class UI {
                     /* Reinsert */
                     if(ans.equals("1") || ans.equals("reinserir dados") ||
                        ans.equals("reinserir")) {
-                        System.out.println("Reinsira os dados");
+                        System.out.println("Reinsira os dados\n");
                         input.clear();
                         break;
                     }
@@ -525,7 +524,7 @@ public class UI {
                             String ans = s.nextLine();
                             ans = ans.toLowerCase();
                             if(ans.equals("1") || ans.equals("sim")) {
-                                System.out.println("Reinsira o dado\n");
+                                System.out.println("Reinsira os dados\n");
                                 break;
                             }
                             else if(ans.equals("2") || ans.equals("não"))

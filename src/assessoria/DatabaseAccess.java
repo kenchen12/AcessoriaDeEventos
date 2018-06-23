@@ -1,9 +1,11 @@
 package assessoria;
 
+import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
 public class DatabaseAccess {
@@ -23,14 +25,34 @@ public class DatabaseAccess {
         Statement st;
 
         try{
+            st = connection.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
+            ResultSetMetaData rsmd = rs.getMetaData();
             /* Loop through array list to create insert query */
             String sql = "INSERT INTO "+tableName+" VALUES(";
             for(int i = 0; i < value.size(); i++) {
-                if(i == value.size()-1) {
-                    sql+= "'"+value.get(i)+"')";
+                String input = null;
+                if(rsmd.getColumnTypeName(i+1).equals("DATE")) {
+                    input = "TO_DATE('"+value.get(i)+"', 'DD/MM/YYYY HH24:MI')";
                 }
                 else {
-                    sql += "'"+value.get(i)+"',";
+                    input = value.get(i);
+                }
+                if(i == value.size()-1) {
+                    if(input.equals(""))
+                        sql+= "NULL)";
+                    else if(rsmd.getColumnTypeName(i+1).equals("DATE"))
+                        sql+= input+")";
+                    else
+                        sql+= "'"+input+"')";
+                }
+                else {
+                    if(input.equals(""))
+                        sql+= "NULL,";
+                    else if(rsmd.getColumnTypeName(i+1).equals("DATE"))
+                        sql+= input+",";
+                    else
+                        sql+= "'"+input+"',";
                 }
             }
             /* Execute query */
@@ -38,23 +60,76 @@ public class DatabaseAccess {
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
-        catch(Exception e){
-			e.printStackTrace();
+        catch(SQLException e){
+			int code = e.getErrorCode();
+            switch(code) {
+            case 1:
+                System.out.println("Valor já existente na tabela");
+                break;
+            case 1843:
+            case 1847:
+            case 1850:
+                System.out.println("Formato de data/hora inválido");
+                break;
+            case 2291:
+                System.out.println("Referência externa não encontrada");
+                break;
+            case 2292:
+                System.out.println("Valor a ser removido é referenciado externamente");
+                    break;
+            }
         }
         return 0;
     }
-
-    public int updateColumn(String tableName, String cpf, String novo, String coluna) {
+  
+    public int updateColumn(String tableName, String antigo, String novo, String coluna) {
         Statement st;
 
         try{
-            String sql = "UPDATE "+tableName+" SET " + coluna + "= '" + novo + "' WHERE " + coluna + " = '" + cpf + "'";
+            st = connection.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int nCols = rsmd.getColumnCount(), i;
+            for(i = 1; i <= nCols; i++)
+                if(rsmd.getColumnName(i).equals(coluna) && rsmd.getColumnTypeName(i).equals("DATE"))
+                    break;
+            String input = null;
+            String sql = "UPDATE "+tableName+" SET " + coluna + "=";
+            if(novo.equals(""))
+                sql += "NULL";
+            else if(i <= nCols && i >= 1)
+                sql += "TO_DATE('"+novo+"', 'DD/MM/YYYY HH24:MI')";
+            else
+                sql += "'"+novo+"'";
+            sql += "WHERE "+coluna+"=";
+            if(antigo.equals(""))
+                sql += "NULL";
+            else if(i <= nCols && i >= 1)
+                sql += "TO_DATE('"+antigo+"', 'DD/MM/YYYY HH24:MI')";
+            else
+                sql += "'"+antigo+"'";
             st = connection.createStatement();
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
-        catch(Exception e){
-			e.printStackTrace();
+        catch(SQLException e){
+			int code = e.getErrorCode();
+            switch(code) {
+            case 1:
+                System.out.println("Valor já existente na tabela");
+                break;
+            case 1843:
+            case 1847:
+            case 1850:
+                System.out.println("Formato de data/hora inválido");
+                break;
+            case 2291:
+                System.out.println("Referência externa não encontrada");
+                break;
+            case 2292:
+                System.out.println("Valor a ser removido é referenciado externamente");
+                    break;
+            }
         }
         return 0;
     }
@@ -63,13 +138,42 @@ public class DatabaseAccess {
         Statement st;
 
         try{
-            String sql = "DELETE FROM "+tableName+" WHERE " + coluna + "= '" + valor + "'";
+            st = connection.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int nCols = rsmd.getColumnCount(), i;
+            for(i = 1; i <= nCols; i++)
+                if(rsmd.getColumnName(i).equals(coluna) && rsmd.getColumnTypeName(i).equals("DATE"))
+                    break;
+            String sql = "DELETE FROM "+tableName+" WHERE " + coluna + "=";
+            if(valor.equals(""))
+                sql += "NULL";
+            else if(i <= nCols && i >= 1)
+                sql += "TO_DATE('"+valor+"', 'DD/MM/YYYY HH24:MI')";
+            else
+                sql += "'"+valor+"'";
             st = connection.createStatement();
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
-        catch(Exception e){
-			e.printStackTrace();
+        catch(SQLException e){
+			int code = e.getErrorCode();
+            switch(code) {
+            case 1:
+                System.out.println("Valor já existente na tabela");
+                break;
+            case 1843:
+            case 1847:
+            case 1850:
+                System.out.println("Formato de data/hora inválido");
+                break;
+            case 2291:
+                System.out.println("Referência externa não encontrada");
+                break;
+            case 2292:
+                System.out.println("Valor a ser removido é referenciado externamente");
+                    break;
+            }
         }
         return 0;
     }
