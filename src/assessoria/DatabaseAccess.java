@@ -1,5 +1,6 @@
 package assessoria;
 
+import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -59,8 +60,24 @@ public class DatabaseAccess {
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
-        catch(Exception e){
-			e.printStackTrace();
+        catch(SQLException e){
+			int code = e.getErrorCode();
+            switch(code) {
+            case 1:
+                System.out.println("Valor já existente na tabela");
+                break;
+            case 1843:
+            case 1847:
+            case 1850:
+                System.out.println("Formato de data/hora inválido");
+                break;
+            case 2291:
+                System.out.println("Referência externa não encontrada");
+                break;
+            case 2292:
+                System.out.println("Valor a ser removido é referenciado externamente");
+                    break;
+            }
         }
         return 0;
     }
@@ -95,8 +112,24 @@ public class DatabaseAccess {
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
-        catch(Exception e){
-			e.printStackTrace();
+        catch(SQLException e){
+			int code = e.getErrorCode();
+            switch(code) {
+            case 1:
+                System.out.println("Valor já existente na tabela");
+                break;
+            case 1843:
+            case 1847:
+            case 1850:
+                System.out.println("Formato de data/hora inválido");
+                break;
+            case 2291:
+                System.out.println("Referência externa não encontrada");
+                break;
+            case 2292:
+                System.out.println("Valor a ser removido é referenciado externamente");
+                    break;
+            }
         }
         return 0;
     }
@@ -123,8 +156,24 @@ public class DatabaseAccess {
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
-        catch(Exception e){
-			e.printStackTrace();
+        catch(SQLException e){
+			int code = e.getErrorCode();
+            switch(code) {
+            case 1:
+                System.out.println("Valor já existente na tabela");
+                break;
+            case 1843:
+            case 1847:
+            case 1850:
+                System.out.println("Formato de data/hora inválido");
+                break;
+            case 2291:
+                System.out.println("Referência externa não encontrada");
+                break;
+            case 2292:
+                System.out.println("Valor a ser removido é referenciado externamente");
+                    break;
+            }
         }
         return 0;
     }
