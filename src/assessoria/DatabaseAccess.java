@@ -117,7 +117,6 @@ public class DatabaseAccess {
                 sql += "TO_DATE('"+valor+"', 'DD/MM/YYYY HH24:MI')";
             else
                 sql += "'"+valor+"'";
-            System.out.println("DEBUG Query ="+sql);
             st = connection.createStatement();
             return st.executeUpdate(sql);
         }
