@@ -7,9 +7,9 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 
 public class DatabaseAccess {
-    
+
     private Connection connection;
-    
+
     public DatabaseAccess(String user, String pass){
         try{
             Class.forName("oracle.jdbc.driver.OracleDriver");
@@ -18,7 +18,7 @@ public class DatabaseAccess {
                     user, pass);
         }catch(Exception e){}
     }
-    
+
     public int insertColumn(String tableName, ArrayList<String> value) {
         Statement st;
 
@@ -35,6 +35,7 @@ public class DatabaseAccess {
             }
             /* Execute query */
             st = connection.createStatement();
+            sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
         catch(Exception e){
@@ -42,13 +43,14 @@ public class DatabaseAccess {
         }
         return 0;
     }
-    
+
     public int updateColumn(String tableName, String cpf, String novo, String coluna) {
         Statement st;
 
         try{
             String sql = "UPDATE "+tableName+" SET " + coluna + "= '" + novo + "' WHERE " + coluna + " = '" + cpf + "'";
             st = connection.createStatement();
+            sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
         catch(Exception e){
@@ -63,6 +65,7 @@ public class DatabaseAccess {
         try{
             String sql = "DELETE FROM "+tableName+" WHERE " + coluna + "= '" + valor + "'";
             st = connection.createStatement();
+            sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
         catch(Exception e){
@@ -137,7 +140,7 @@ public class DatabaseAccess {
         return null;
     }
 
-    
+
     public Connection getConnection() {
         return this.connection;
     }
