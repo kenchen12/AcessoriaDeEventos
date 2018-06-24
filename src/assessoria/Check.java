@@ -220,7 +220,6 @@ public class Check {
             rs2 = st2.executeQuery("SELECT L.TIPO AS TIPO_LOCAL FROM FESTA F JOIN LOCAL L ON L.ID="+checkLocal);
         }
         catch(Exception e) {}
-
         switch(tableName) {
         case "FESTA":
             try {
@@ -252,5 +251,119 @@ public class Check {
         default:
             return true;
         }
+    }
+
+    public static boolean updateContratoFesta(DatabaseAccess db, String tableName, String columnName, String newValue) {
+        Statement st = null;
+        ResultSet rs = null;
+        ResultSetMetaData rsmd = null;
+        int nCols = -1;
+
+        if(!columnName.equals("FESTA"))
+            return true;
+        
+        try {
+            st = db.getConnection().createStatement();
+            rs = st.executeQuery("SELECT TIPO FROM FESTA WHERE NOTA_FISCAL='"+newValue+"'");
+            rsmd = rs.getMetaData();
+            nCols = rsmd.getColumnCount();   
+        }
+        catch (Exception e) {}
+
+        try {
+            rs.next();
+            switch(tableName) {
+            case "CONTRATO_ANIMADOR":
+            case "CONTRATO_BRINQUEDO":
+                if(rs.getString("TIPO").equals("CASAMENTO"))
+                    return false;
+                else
+                    return true;
+            case "CONTRATO_SOM_LUZ":
+            case "CONTRATO_CERIMONIALISTA":
+            case "CONTRATO_BANDA":
+                if(rs.getString("TIPO").equals("INFANTIL"))
+                    return false;
+                else
+                    return true;
+            default:
+                return true;
+            }
+        }
+        catch (Exception e) {}
+        return true;
+    }
+
+    public static boolean updateTipoLocal(DatabaseAccess db, String tableName, String columnName, String newValue) {
+        Statement st = null;
+        ResultSet rs = null;
+        ResultSetMetaData rsmd = null;
+        int nCols = -1;
+
+        if(!columnName.equals("LOCAL"))
+            return true;
+        
+        try {
+            st = db.getConnection().createStatement();
+            rs = st.executeQuery("SELECT TIPO FROM LOCAL WHERE ID='"+newValue+"'");
+            rsmd = rs.getMetaData();
+            nCols = rsmd.getColumnCount();   
+        }
+        catch (Exception e) {}
+
+        try {
+            rs.next();
+            switch(tableName) {
+            case "BUFE_INFANTIL":
+                if(rs.getString("TIPO").equals("SALAO"))
+                    return false;
+                else
+                    return true;
+            case "DECORACAO_SALAO":
+                if(rs.getString("TIPO").equals("BUFE INFANTIL"))
+                    return false;
+                else
+                    return true;
+            default:
+                return true;
+            }
+        }
+        catch (Exception e) {}
+        return true;   
+    }
+
+    public static boolean updateFestaLocal(DatabaseAccess db, String tableName, String columnName, String oldValue, String newValue, String oldPK) {
+        Statement st = null;
+        ResultSet rs = null;
+        ResultSetMetaData rsmd = null;
+        int nCols = -1;
+
+        if(!columnName.equals("LOCAL") && !columnName.equals("TIPO"))
+            return true;
+        
+        try {
+            st = db.getConnection().createStatement();
+            rs = st.executeQuery("SELECT L.TIPO AS TIPO_LOCAL, F.TIPO AS TIPO_FESTA FROM LOCAL L JOIN FESTA F ON L.ID='"+newValue+"' AND F.NOTA_FISCAL='"+oldPK+"'");
+            rsmd = rs.getMetaData();
+            nCols = rsmd.getColumnCount();   
+        }
+        catch (Exception e) {}
+
+        try {
+            rs.next();
+            switch(tableName) {
+            case "FESTA":
+                if(rs.getString("TIPO_FESTA").equals("INFANTIL") &&
+                   rs.getString("TIPO_LOCAL").equals("SALAO"))
+                    return false;
+                if(rs.getString("TIPO_FESTA").equals("CASAMENTO") &&
+                   rs.getString("TIPO_LOCAL").equals("BUFE INFANTIL"))
+                    return false;
+                else
+                    return true;
+            }
+        }
+        catch (Exception e) {}
+        return true;   
     }
 }
