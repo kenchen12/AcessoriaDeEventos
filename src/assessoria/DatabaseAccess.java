@@ -26,7 +26,7 @@ public class DatabaseAccess {
         Statement st;
 
         try{
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
             ResultSetMetaData rsmd = rs.getMetaData();
             /* Loop through array list to create insert query */
@@ -57,7 +57,7 @@ public class DatabaseAccess {
                 }
             }
             /* Execute query */
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
@@ -82,14 +82,14 @@ public class DatabaseAccess {
         }
         return 0;
     }
-  
+
     public int updateColumn(String tableName, String coluna, String antigo, String novo, ArrayList<String> pk) {
         Statement st;
 
         try{
             DatabaseMetaData meta = this.connection.getMetaData();
             ResultSet primaryKey = meta.getPrimaryKeys(null, null, tableName);
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
             ResultSetMetaData rsmd = rs.getMetaData();
             int nCols = rsmd.getColumnCount(), i;
@@ -127,7 +127,7 @@ public class DatabaseAccess {
                     primaryKey.next();
                 }
             }
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
@@ -160,8 +160,8 @@ public class DatabaseAccess {
 
         try{
             DatabaseMetaData meta = this.connection.getMetaData();
-            ResultSet primaryKey = meta.getPrimaryKeys(null, null, tableName);            
-            st = connection.createStatement();
+            ResultSet primaryKey = meta.getPrimaryKeys(null, null, tableName);
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
             ResultSetMetaData rsmd = rs.getMetaData();
             int nCols = rsmd.getColumnCount();
@@ -180,7 +180,7 @@ public class DatabaseAccess {
                 if(!primaryKey.isAfterLast())
                     sql += " AND ";
             }
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
         }
@@ -212,7 +212,7 @@ public class DatabaseAccess {
         Statement st;
 
         try{
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             return st.executeQuery("SELECT CLIENTE.NOME, CONVIDADO.NOME FROM FESTA JOIN CLIENTE ON (FESTA.CLIENTE = CLIENTE.CPF) AND ( EXTRACT(YEAR FROM FESTA.DATA_HORA) >= 2010) AND ( EXTRACT(YEAR FROM FESTA.DATA_HORA) <= 2018) JOIN CONVIDADO ON (CONVIDADO.FESTA = FESTA.NOTA_FISCAL) ORDER BY CLIENTE.NOME");
         }
         catch(Exception e){
@@ -225,7 +225,7 @@ public class DatabaseAccess {
         Statement st;
 
         try{
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             return st.executeQuery("SELECT EQUIPE_BUFE.NOME, COUNT(EQUIPE_BUFE.CNPJ) AS QUANTIDADE FROM FESTA JOIN EQUIPE_BUFE ON (FESTA.EQUIPE_BUFE = EQUIPE_BUFE.CNPJ) AND (FESTA.TIPO = 'CASAMENTO') GROUP BY EQUIPE_BUFE.CNPJ, EQUIPE_BUFE.NOME");
         }
         catch(Exception e){
@@ -238,7 +238,7 @@ public class DatabaseAccess {
         Statement st;
 
         try{
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             return st.executeQuery("SELECT ANIMADOR.CPF, ANIMADOR.NOME_ARTISTICO FROM FESTA JOIN CONTRATO_ANIMADOR ON (FESTA.NOTA_FISCAL = CONTRATO_ANIMADOR.FESTA) AND (EXTRACT(YEAR FROM FESTA.DATA_HORA) = 2018) JOIN PROFISSAO ON (PROFISSAO.ANIMADOR = CONTRATO_ANIMADOR.ANIMADOR) JOIN ANIMADOR ON (ANIMADOR.CPF = PROFISSAO.ANIMADOR) GROUP BY ANIMADOR.CPF, ANIMADOR.NOME_ARTISTICO HAVING (COUNT(ANIMADOR.CPF)) >= 2");
         }
         catch(Exception e){
@@ -251,7 +251,7 @@ public class DatabaseAccess {
         Statement st;
 
         try{
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             return st.executeQuery("SELECT FESTA.NOTA_FISCAL, BANDA.NOME, BANDA.GENERO FROM CONTRATO_BANDA JOIN BANDA ON (CONTRATO_BANDA.CPF = BANDA.CPF) AND (CONTRATO_BANDA.NOME = BANDA.NOME) RIGHT JOIN FESTA ON (FESTA.NOTA_FISCAL = CONTRATO_BANDA.FESTA)");
         }
         catch(Exception e){
@@ -264,7 +264,7 @@ public class DatabaseAccess {
         Statement st;
 
         try{
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             return st.executeQuery("SELECT * FROM "+tableName);
             /* Execute query */
         }
