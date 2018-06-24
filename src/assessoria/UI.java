@@ -615,6 +615,12 @@ public class UI {
             case 5:
                 ret = this.db.select4();
                 break;
+            case 6:
+                ret = this.db.select5();
+                break;
+            case 7:
+                ret = this.db.select6();
+                break;
             }
         }
         catch (Exception e) {}
@@ -662,7 +668,9 @@ public class UI {
             System.out.println("3. Nome de cada equipe e quantidade de festas de casamento participaram");
             System.out.println("4. CPF e nome artístico de cada animador que participou de pelo menos duas festas em 2018");
             System.out.println("5. Nota fiscal de todas as festas e, para as que possuírem, apresentar nome da banda e seu gênero");
-            System.out.println("6. Sair");
+            System.out.println("6. Nota fiscal de cada festa e o número de pratos e bebidas oferecedios pela equipe de bufê contratada");
+            System.out.println("7. Para cada festa, mostrar nota fiscal, cidade e o número de mesas do local");
+            System.out.println("8. Sair");
 
             Scanner s = new Scanner(System.in);
             String input = s.nextLine();
@@ -673,11 +681,11 @@ public class UI {
             }
             catch (Exception e) {}
             Screen.clear();
-            if(idx <= 0 || idx >= 6) {
+            if(idx <= 0 || idx >= 8) {
                 System.out.println("Comando inválido\n");
                 continue;
             }
-            else if(idx == 6)
+            else if(idx == 8)
                 return;
             else {
                 if(idx == 1)

@@ -274,6 +274,38 @@ public class DatabaseAccess {
         return null;
     }
 
+    public ResultSet select5() {
+        Statement st;
+        
+        try{
+            st = connection.createStatement();
+
+            return st.executeQuery("SELECT FESTA.NOTA_FISCAL, COUNT(PRATOS.PRATO) AS NRO_PRATOS, COUNT(BEBIDAS.BEBIDA) AS NRO_BEBIDAS FROM FESTA JOIN EQUIPE_BUFE ON (FESTA.EQUIPE_BUFE = EQUIPE_BUFE.CNPJ) JOIN PRATOS ON (EQUIPE_BUFE.CNPJ = PRATOS.EQUIPE) JOIN BEBIDAS ON (EQUIPE_BUFE.CNPJ = BEBIDAS.EQUIPE) GROUP BY FESTA.NOTA_FISCAL");
+        }
+        catch(Exception e){
+			e.printStackTrace();
+        }
+        return null;
+    }
+
+    public ResultSet select6() {
+        Statement st;
+        
+        try{
+            st = connection.createStatement();
+
+            return st.executeQuery("SELECT FESTA.NOTA_FISCAL, LOCAL.CIDADE, COUNT(MESA.NUMERO) AS NRO_MESAS FROM FESTA JOIN LOCAL ON (FESTA.LOCAL = LOCAL.ID) JOIN MESA ON (MESA.LOCAL = LOCAL.ID) GROUP BY FESTA.NOTA_FISCAL, LOCAL.CIDADE");
+        }
+        catch(Exception e){
+			e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /*PARA CADA FESTA APRESENTAR NOTA FISCAL, A CIDADE ONDE OCORRERÁ E A QUANTIDADE DE CADEIRAS
+SELECT FESTA.NOTA_FISCAL, LOCAL.CIDADE, COUNT(CADEIRA.NUMERO) FROM FESTA JOIN LOCAL ON (FESTA.LOCAL = LOCAL.ID) JOIN MESA ON (MESA.LOCAL = LOCAL.ID) JOIN ON (CADEIRA.LOCAL = MESA.LOCAL) AND (CADEIRA.MESA = MESA.NUMERO)*/
+    
     public Connection getConnection() {
         return this.connection;
     }
