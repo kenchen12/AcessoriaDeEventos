@@ -99,34 +99,34 @@ public class DatabaseAccess {
             String input = null;
             String sql = "UPDATE "+tableName+" SET " + coluna + "=";
             if(novo.equals(""))
-                sql += "NULL";
+                sql += " NULL ";
             else if(i <= nCols && i >= 1)
-                sql += "TO_DATE('"+novo+"', 'DD/MM/YYYY HH24:MI')";
+                sql += " TO_DATE('"+novo+"', 'DD/MM/YYYY HH24:MI')";
             else
                 sql += "'"+novo+"'";
             sql += " WHERE "+coluna+"=";
             if(antigo.equals(""))
                 sql += "NULL";
             else if(i <= nCols && i >= 1)
-                sql += "TO_DATE('"+antigo+"', 'DD/MM/YYYY HH24:MI')";
+                sql += " TO_DATE('"+antigo+"', 'DD/MM/YYYY HH24:MI')";
             else
                 sql += "'"+antigo+"'";
-            for(String str : pk) {
+
+            int k = 0;
+            primaryKey.next();
+            while(!primaryKey.isAfterLast()) {
                 sql += " AND ";
-                int k = 0;
+                sql += primaryKey.getString("COLUMN_NAME") + "=";
+                if(pk.get(k).equals(""))
+                    sql += "NULL";
+                else if(i <= nCols && i >= 1)
+                    sql += " TO_DATE('"+pk.get(k)+"', 'DD/MM/YYYY HH24:MI')";
+                else
+                    sql += "'"+pk.get(k)+"'";
+                k++;
                 primaryKey.next();
-                while(!primaryKey.isAfterLast()) {
-                    sql += primaryKey.getString("COLUMN_NAME") + "=";
-                    if(pk.get(k).equals(""))
-                        sql += "NULL";
-                    else if(i <= nCols && i >= 1)
-                        sql += "TO_DATE('"+pk.get(k)+"', 'DD/MM/YYYY HH24:MI')";
-                    else
-                        sql += "'"+pk.get(k)+"'";
-                    k++;
-                    primaryKey.next();
-                }
             }
+            
             st = connection.createStatement();
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
@@ -149,7 +149,7 @@ public class DatabaseAccess {
                 System.out.println("Valor a ser removido é referenciado externamente");
                     break;
             default:
-                e.printStackTrace();
+                break;
             }
         }
         return 0;

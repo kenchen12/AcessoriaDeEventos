@@ -401,7 +401,7 @@ public class UI {
         ResultSetMetaData rsmd = null;
         int nCols = 0, nPK = -1;
         Scanner s = new Scanner(System.in);
-        String antigo = null, novo = null;
+        String antigo = null, novo = null, oldPK = null;
         int coll = 0;
         boolean exit = false;
         DatabaseMetaData meta = null;
@@ -416,28 +416,31 @@ public class UI {
         }
         catch (Exception e) {}
 
-        try {
-            primaryKey = meta.getPrimaryKeys(null, null, tableName);
-        }
-        catch (Exception e) {}
-
-        // printar tabela
-        generalView(tableName, 1);
-
-        ArrayList<String> pk = new ArrayList<String>();
-        
-        System.out.println("Digite a linha a ser alterada");
-        try {
-            primaryKey.next();
-            while(!primaryKey.isAfterLast()) {
-                System.out.print(primaryKey.getString("COLUMN_NAME")+": ");
-                pk.add(s.nextLine());
-                primaryKey.next();
-            }
-        }
-        catch (Exception e) {}
-        
         while(true) {
+            
+            try {
+                primaryKey = meta.getPrimaryKeys(null, null, tableName);
+            }
+            catch (Exception e) {}
+
+            // printar tabela
+            generalView(tableName, 1);
+
+            ArrayList<String> pk = new ArrayList<String>();
+        
+            System.out.println("Digite a linha a ser alterada");
+            try {
+                primaryKey.next();
+                while(!primaryKey.isAfterLast()) {
+                    System.out.print(primaryKey.getString("COLUMN_NAME")+": ");
+                    String aux = s.nextLine();
+                    pk.add(aux);
+                    if(primaryKey.getString("COLUMN_NAME").equals("FESTA"))
+                        oldPK = aux;
+                    primaryKey.next();
+                }
+            }
+            catch (Exception e) {}
             
             /* Show column names and exit option */
             System.out.println("Digite a coluna que deseja alterar");
@@ -470,92 +473,108 @@ public class UI {
             if(exit)
                 break;
 
+            /* Prompt to enter old and new values to update */
             while (true){
-                /* Prompt to enter old and new values to update */
-                while (true){
-                    System.out.println("Digite o valor de "+columnName+" a ser alterado: ");
-                    antigo = s.nextLine();
+                System.out.println("Digite o valor de "+columnName+" a ser alterado: ");
+                antigo = s.nextLine();
 
-                    System.out.println("Digite o novo valor: ");
-                    novo = s.nextLine();
+                System.out.println("Digite o novo valor: ");
+                novo = s.nextLine();
 
-                    /* Check if column is 'NOT NULL' */
-                    int nullable = 0;
-                    try {
-                        nullable = rsmd.isNullable(coll);
-                    }
-                    catch(Exception e) {}
-
-                    /* Prompt error on empty field when column is 'NOT NULL' */
-                    if(novo.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
-                        System.out.println("Valor inválido. Este campo é obrigatório");
-                    }
-                    /* Both inputs have valid values */
-                    else {
-                        break;
-                    }
+                /* Check if column is 'NOT NULL' */
+                int nullable = 0;
+                try {
+                    nullable = rsmd.isNullable(coll);
                 }
+                catch(Exception e) {}
 
-                /* Confirmation prompt */
-                System.out.println("O novo dado está correto?");
-                System.out.println("1. Sim");
-                System.out.println("2. Não");
+                /* Prompt error on empty field when column is 'NOT NULL' */
+                if(novo.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
+                    System.out.println("Valor inválido. Este campo é obrigatório");
+                }
+                /* Both inputs have valid values */
+                else {
+                    break;
+                }
+            }
 
-                String answer = s.nextLine();
-                answer = answer.toLowerCase();
-
+            if(!Check.updateContratoFesta(this.db, tableName, columnName, novo)) {
                 Screen.clear();
+                System.out.println("Tipo de festa incorreta para o contrato\n");
+                continue;
+            }
+            else if(!Check.updateTipoLocal(this.db, tableName, columnName, novo)) {
+                Screen.clear();
+                System.out.println("Tipo de local incorreto para o valor inserido\n");
+                continue;
+            }
+            else if(!Check.updateFestaLocal(this.db, tableName, columnName, antigo, novo, oldPK)) {
+                Screen.clear();
+                System.out.println("Tipo de local inválido para tipo de festa\n");
+                continue;
+            }
+                
+            /* Confirmation prompt */
+            System.out.println("O novo dado está correto?");
+            System.out.println("1. Sim");
+            System.out.println("2. Não");
 
-                if(answer.equals("1") || answer.equals("sim")) {
-                    antigo = Utils.deAccent(antigo);
-                    novo = Utils.deAccent(novo);
-                    pk = Utils.deAccentArray(pk);
-                    columnName = Utils.deAccent(columnName);
-                    /* Try to update table */
-                    int ret = this.db.updateColumn(tableName, columnName, antigo, novo, pk);
-                    /* Update success */
-                    if(ret != 0) {
-                        System.out.println("Inserção efetuada com sucesso");
-                        break;
-                    }
-                    /* Error */
-                    else {
-                        System.out.println("Não foi possível inserir, deseja inserir de novo?\n");
-                        while(true) {
-                            System.out.println("1. Sim");
-                            System.out.println("2. Não");
-                            String ans = s.nextLine();
-                            ans = ans.toLowerCase();
-                            if(ans.equals("1") || ans.equals("sim")) {
-                                System.out.println("Reinsira os dados\n");
-                                break;
-                            }
-                            else if(ans.equals("2") || ans.equals("não"))
-                                return;
-                            else
-                                System.out.println("Resposta inválida\n");
-                        }
-                    }
+            String answer = s.nextLine();
+            answer = answer.toLowerCase();
+
+            Screen.clear();
+
+            if(answer.equals("1") || answer.equals("sim")) {
+                antigo = Utils.deAccent(antigo);
+                novo = Utils.deAccent(novo);
+                pk = Utils.deAccentArray(pk);
+                columnName = Utils.deAccent(columnName);
+                /* Try to update table */
+                int ret = this.db.updateColumn(tableName, columnName, antigo, novo, pk);
+                /* Update success */
+                if(ret != 0) {
+                    System.out.println("Atualização efetuada com sucesso");
+                    break;
                 }
-                /* If data is incorrect */
-                else if(answer.equals("2") || answer.equals("não")) {
-                    System.out.println("O que deseja fazer?");
+                /* Error */
+                else {
+                    System.out.println("Não foi possível inserir, deseja inserir de novo?\n");
                     while(true) {
-                        System.out.println("1. Reinserir dados");
-                        System.out.println("2. Sair");
-
+                        System.out.println("1. Sim");
+                        System.out.println("2. Não");
                         String ans = s.nextLine();
-                        Screen.clear();
-                        if(ans.equals("1") || ans.equals("reinserir dados") ||
-                           ans.equals("reinserir")) {
+                        ans = ans.toLowerCase();
+                        if(ans.equals("1") || ans.equals("sim")) {
                             System.out.println("Reinsira os dados\n");
+                            pk.clear();
                             break;
                         }
-                        else if(ans.equals("2") || ans.equals("sair"))
+                        else if(ans.equals("2") || ans.equals("não"))
                             return;
                         else
                             System.out.println("Resposta inválida\n");
                     }
+                }
+            }
+            /* If data is incorrect */
+            else if(answer.equals("2") || answer.equals("não")) {
+                System.out.println("O que deseja fazer?");
+                while(true) {
+                    System.out.println("1. Reinserir dados");
+                    System.out.println("2. Sair");
+
+                    String ans = s.nextLine();
+                    Screen.clear();
+                    if(ans.equals("1") || ans.equals("reinserir dados") ||
+                       ans.equals("reinserir")) {
+                        System.out.println("Reinsira os dados\n");
+                        pk.clear();
+                        break;
+                    }
+                    else if(ans.equals("2") || ans.equals("sair"))
+                        return;
+                    else
+                        System.out.println("Resposta inválida\n");
                 }
             }
         }
@@ -648,9 +667,6 @@ public class UI {
             e.printStackTrace();
         }
         if(ret != null) {
-            System.out.print("Pressione qualquer tecla para continuar...");
-            s.nextLine();
-            Screen.clear();
             return;
         }
         /* Error */
@@ -681,7 +697,7 @@ public class UI {
             }
             catch (Exception e) {}
             Screen.clear();
-            if(idx <= 0 || idx >= 8) {
+            if(idx <= 0 || idx > 8) {
                 System.out.println("Comando inválido\n");
                 continue;
             }
@@ -800,7 +816,7 @@ public class UI {
                         System.out.println("1. Sim");
                         System.out.println("2. Não");
                         String ans = s.nextLine();
-                        ans = ans.toLowerCase();
+                       ans = ans.toLowerCase();
                         if(ans.equals("1") || ans.equals("sim")) {
                             System.out.println("Reinsira o dado\n");
                             break;
