@@ -89,15 +89,7 @@ public class UI {
             return "visualizar";
         else if(raw.equals("4") || raw.equals("remover"))
             return "remover";
-        else if(raw.equals("5") || raw.equals("select1"))
-            return "select1";
-        else if(raw.equals("6") || raw.equals("select2"))
-            return "select2";
-        else if(raw.equals("7") || raw.equals("select3"))
-            return "select3";
-        else if(raw.equals("8") || raw.equals("select4"))
-            return "select4";
-        else if(raw.equals("9") || raw.equals("sair"))
+        else if(raw.equals("5") || raw.equals("sair"))
             return "sair";
         else
             return "";
@@ -118,11 +110,7 @@ public class UI {
             System.out.println("2. Atualizar");
             System.out.println("3. Visualizar");
             System.out.println("4. Remover");
-            System.out.println("5. Select1");
-            System.out.println("6. Select2");
-            System.out.println("7. Select3");
-            System.out.println("8. Select4");
-            System.out.println("9. Sair");
+            System.out.println("5. Sair");
 
             /* Get input and filter it */
             Scanner s = new Scanner(System.in);
@@ -138,22 +126,10 @@ public class UI {
 				this.update();
             }
             else if(input.equals("visualizar")) {
-                this.view();
+                this.viewMenu();
             }
             else if(input.equals("remover")) {
                 this.remove();
-            }
-            else if(input.equals("select1")) {
-                this.select1();
-            }
-            else if(input.equals("select2")) {
-                this.select2();
-            }
-            else if(input.equals("select3")) {
-                this.select3();
-            }
-            else if(input.equals("select4")) {
-                this.select4();
             }
             else if(input.equals("sair")) {
                 break;
@@ -273,6 +249,7 @@ public class UI {
 
             if(answer.equals("1") || answer.equals("sim")) {
                 Screen.clear();
+                input = Utils.deAccentArray(input);
                 /* Trying to insert on table */
                 int ret = this.db.insertColumn(tableName, input);
 
@@ -445,7 +422,7 @@ public class UI {
         catch (Exception e) {}
 
         // printar tabela
-        generalView(tableName);
+        generalView(tableName, 1);
 
         ArrayList<String> pk = new ArrayList<String>();
         
@@ -614,12 +591,34 @@ public class UI {
         }
     }
 
-    private void generalView( String input){
+    private void generalView(String input, int opt){
         ResultSetMetaData rsmd = null;
-        ResultSet ret = this.db.createView(input);
+        ResultSet ret = null;
         Scanner s = new Scanner(System.in);
         List<List<String>> output = new ArrayList<>();
         List<String> aux = new ArrayList<>();
+
+        try {
+            switch(opt) {
+            case 1:
+                ret = this.db.createView(input);
+                break;
+            case 2:
+                ret = this.db.select1();
+                break;
+            case 3:
+                ret = this.db.select2();
+                break;
+            case 4:
+                ret = this.db.select3();
+                break;
+            case 5:
+                ret = this.db.select4();
+                break;
+            }
+        }
+        catch (Exception e) {}
+        
         try{
             ret.next();
             rsmd = ret.getMetaData();
@@ -629,10 +628,10 @@ public class UI {
             }
 
             output.add(aux);
-            while (! ret.isAfterLast()){
+            while (!ret.isAfterLast()){
                 aux = new ArrayList<>();
                 for(int v = 1; v <= nCols; v++){
-                    aux.add(ret.getString( rsmd.getColumnName(v)));
+                    aux.add(ret.getString(rsmd.getColumnName(v)));
                 }
                 output.add(aux);
                 ret.next();
@@ -643,7 +642,9 @@ public class UI {
             e.printStackTrace();
         }
         if(ret != null) {
-            System.out.println("Vizualização apresentada com sucesso");
+            System.out.print("Pressione qualquer tecla para continuar...");
+            s.nextLine();
+            Screen.clear();
             return;
         }
         /* Error */
@@ -652,7 +653,43 @@ public class UI {
         }
     }
 
-    private void view() {
+    private void viewMenu() {
+        while(true) {
+            System.out.println("O que gostaria de visualizar?");
+            System.out.println("(Digite apenas o número)");
+            System.out.println("1. Tabelas");
+            System.out.println("2. Nome dos clientes e todos seus condidados nas festas entre 2010 e 2018");
+            System.out.println("3. Nome de cada equipe e quantidade de festas de casamento participaram");
+            System.out.println("4. CPF e nome artístico de cada animador que participou de pelo menos duas festas em 2018");
+            System.out.println("5. Nota fiscal de todas as festas e, para as que possuírem, apresentar nome da banda e seu gênero");
+            System.out.println("6. Sair");
+
+            Scanner s = new Scanner(System.in);
+            String input = s.nextLine();
+            int idx = -1;
+
+            try {
+                idx = Integer.parseInt(input);
+            }
+            catch (Exception e) {}
+            Screen.clear();
+            if(idx <= 0 || idx >= 6) {
+                System.out.println("Comando inválido\n");
+                continue;
+            }
+            else if(idx == 6)
+                return;
+            else {
+                if(idx == 1)
+                    this.viewTable();
+                else
+                    this.generalView(null, idx);
+                return;
+            }
+        }
+    }
+    
+    private void viewTable() {
         ResultSetMetaData rsmd = null;
         while(true) {
             int i = 1;
@@ -679,11 +716,10 @@ public class UI {
             }
             /* Get input from user */
             else {
-                this.generalView(input);
+                this.generalView(input, 1);
             }
         }
     }
-
 
     private void createRemoveInput(String tableName) {
         Statement st = null;
@@ -703,21 +739,17 @@ public class UI {
             rsmd = rs.getMetaData();
             nCols = rsmd.getColumnCount();
         }
-        catch (Exception e) {
-            System.out.println("DEU RUIM 0");
-        }
+        catch (Exception e) {}
 
         try {
             primaryKey = meta.getPrimaryKeys(null, null, tableName);
         }
-        catch (Exception e) {
-            System.out.println("DEU RUIM 1");            
-        }
+        catch (Exception e) {}
         
         while(true) {
 
             // printar tabela
-            generalView(tableName);
+            generalView(tableName, 1);
 
             ArrayList<String> pk = new ArrayList<String>();
             
@@ -745,6 +777,7 @@ public class UI {
             Screen.clear();
 
             if(answer.equals("1") || answer.equals("sim")) {
+                pk = Utils.deAccentArray(pk);
                 /* Try to update table */
                 int ret = this.db.removeColumn(tableName, pk);
                 /* Update success */
@@ -822,157 +855,6 @@ public class UI {
             /* Get input from user */
             else {
                 this.createRemoveInput(tableName);
-            }
-        }
-    }
-
-    private void select1() {
-        ResultSetMetaData rsmd = null;
-        while(true) {
-            int i = 1;
-            System.out.println("NOME DOS CLIENTES E TODOS SEUS CONVIDADOS NAS FESTAS ENTRE 2010 E 2018 ORDENADOS PELO NOME DOS CLIENTES");
-
-            ResultSet ret = this.db.select1();
-
-            try{
-                ret.next();
-                rsmd = ret.getMetaData();
-                int nCols = rsmd.getColumnCount();
-                while (! ret.isAfterLast()){
-                    for(int v = 1; v <= nCols; v++){
-                        System.out.print(ret.getString( rsmd.getColumnName(v) ) + "\t\t\t");
-                    }
-                    System.out.println();
-                    ret.next();
-                }
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-
-            /* Update success */
-            if(ret != null) {
-                System.out.println("Select executdo com sucesso.");
-                return;
-            }
-            /* Error */
-            else {
-                System.out.println("Não foi possível fazer o select\n");
-                return;
-            }
-
-        }
-    }
-
-    private void select2() {
-        ResultSetMetaData rsmd = null;
-        while(true) {
-            int i = 1;
-            System.out.println("NOME E QUANTIDADE DE FESTAS DE CASAMENTO EM QUE CADA EQUIPE DE BUFE PARTICIPOU");
-
-            ResultSet ret = this.db.select2();
-
-            try{
-                ret.next();
-                rsmd = ret.getMetaData();
-                int nCols = rsmd.getColumnCount();
-                while (! ret.isAfterLast()){
-                    for(int v = 1; v <= nCols; v++){
-                        System.out.print(ret.getString( rsmd.getColumnName(v) ) + "\t\t\t");
-                    }
-                    System.out.println();
-                    ret.next();
-                }
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-
-            /* Update success */
-            if(ret != null) {
-                System.out.println("Select executdo com sucesso.");
-                return;
-            }
-            /* Error */
-            else {
-                System.out.println("Não foi possível fazer o select\n");
-                return;
-            }
-
-        }
-    }
-
-    private void select3() {
-        ResultSetMetaData rsmd = null;
-        while(true) {
-            int i = 1;
-            System.out.println("CPF E NOME ARTISTICO DE CADA ANIMADOR QUE PARTICIPOU DE PELO MENOS DUAS FESTA EM 2018");
-
-            ResultSet ret = this.db.select3();
-
-            try{
-                ret.next();
-                rsmd = ret.getMetaData();
-                int nCols = rsmd.getColumnCount();
-                while (! ret.isAfterLast()){
-                    for(int v = 1; v <= nCols; v++){
-                        System.out.print(ret.getString( rsmd.getColumnName(v) ) + "\t\t\t");
-                    }
-                    System.out.println();
-                    ret.next();
-                }
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-
-            /* Update success */
-            if(ret != null) {
-                System.out.println("Select executdo com sucesso.");
-                return;
-            }
-            /* Error */
-            else {
-                System.out.println("Não foi possível fazer o select\n");
-                return;
-            }
-
-        }
-    }
-
-    private void select4() {
-        ResultSetMetaData rsmd = null;
-        while(true) {
-            int i = 1;
-            System.out.println("SELECIONAR NOTA FISCAL DE TODAS AS FESTAS E PARA AS QUE POSSUIREM, APRESENAR O NOME DA BANDA E SEU GENERO");
-
-            ResultSet ret = this.db.select4();
-
-            try{
-                ret.next();
-                rsmd = ret.getMetaData();
-                int nCols = rsmd.getColumnCount();
-                while (! ret.isAfterLast()){
-                    for(int v = 1; v <= nCols; v++){
-                        System.out.print(ret.getString( rsmd.getColumnName(v) ) + "\t\t\t");
-                    }
-                    System.out.println();
-                    ret.next();
-                }
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-
-            /* Update success */
-            if(ret != null) {
-                System.out.println("Select executdo com sucesso.");
-                return;
-            }
-            /* Error */
-            else {
-                System.out.println("Não foi possível fazer o select\n");
-                return;
             }
         }
     }
