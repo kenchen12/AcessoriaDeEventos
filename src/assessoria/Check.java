@@ -7,7 +7,7 @@ import java.sql.Statement;
 import assessoria.DatabaseAccess;
 
 public class Check {
-    
+
     public static boolean contratoFesta(DatabaseAccess db, String tableName, ArrayList<String> input) {
         Statement st1 = null, st2 = null;
         ResultSet rs1 = null, rs2 = null;
@@ -17,14 +17,14 @@ public class Check {
         /* Get table info */
         try {
             st1 = db.getConnection().createStatement();
-            rs1 = st1.executeQuery("SELECT * FROM " + tableName);            
+            rs1 = st1.executeQuery("SELECT * FROM " + tableName);
             rsmd = rs1.getMetaData();
             nCols = rsmd.getColumnCount();
         }
         catch (Exception e) {}
 
         /* Find column named 'FESTA' */
-        try {            
+        try {
             n = rs1.findColumn("FESTA");
         }
         catch (Exception e) {}
@@ -32,7 +32,7 @@ public class Check {
         /* If there are none, there is no reason to continue the check */
         if(n == -1)
             return true;
-        
+
         String check = input.get(n-1);
 
         /* Search table 'FESTA' looking for primary key entered */
@@ -103,7 +103,7 @@ public class Check {
         /* Get table info */
         try {
             st1 = db.getConnection().createStatement();
-            rs1 = st1.executeQuery("SELECT * FROM " + tableName);            
+            rs1 = st1.executeQuery("SELECT * FROM " + tableName);
             /* Get meta data and number of columns */
             rsmd = rs1.getMetaData();
             nCols = rsmd.getColumnCount();
@@ -111,17 +111,17 @@ public class Check {
         catch (Exception e) {}
 
         /* Try to find a column named 'LOCAL' */
-        try {            
+        try {
             n = rs1.findColumn("LOCAL");
         }
         catch (Exception e) {}
-        
+
         /* If there are none, there is no reason to continue the check */
         if(n == -1)
             return true;
         /* Get 'LOCAL' input from array */
         String check = input.get(n-1);
-        
+
         try {
             st2 = db.getConnection().createStatement();
             rs2 = st2.executeQuery("SELECT ID, TIPO FROM LOCAL WHERE ID='"+check+"'");
@@ -186,32 +186,32 @@ public class Check {
         /* Get table meta data */
         try {
             st1 = db.getConnection().createStatement();
-            rs1 = st1.executeQuery("SELECT * FROM " + tableName);            
+            rs1 = st1.executeQuery("SELECT * FROM " + tableName);
             rsmd = rs1.getMetaData();
             nCols = rsmd.getColumnCount();
         }
         catch (Exception e) {}
 
         /* Try to find column named 'LOCAL' */
-        try {            
+        try {
             n = rs1.findColumn("LOCAL");
         }
         catch (Exception e) {}
 
         if(n == -1)
             return true;
-        
+
         String checkLocal = input.get(n-1);
 
         /* Try to find column named 'TIPO' */
-        try {            
+        try {
             m = rs1.findColumn("TIPO");
         }
         catch (Exception e) {}
 
         if(m == -1)
             return true;
-        
+
         String checkFesta = input.get(m-1);
 
         /* Get constraints info from tables */
