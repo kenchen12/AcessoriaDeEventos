@@ -405,7 +405,7 @@ public class UI {
         int coll = 0;
         boolean exit = false;
         DatabaseMetaData meta = null;
-        
+
         /* Get every table column and number of columns */
         try {
             meta = this.db.getConnection().getMetaData();
@@ -441,7 +441,6 @@ public class UI {
                 }
             }
             catch (Exception e) {}
-            
             /* Show column names and exit option */
             System.out.println("Digite a coluna que deseja alterar");
             for(int col = 1; col <= nCols; col++) {
@@ -643,7 +642,7 @@ public class UI {
             }
         }
         catch (Exception e) {}
-        
+
         try{
             ret.next();
             rsmd = ret.getMetaData();
@@ -651,15 +650,17 @@ public class UI {
             for(int v = 1; v <= nCols; v++){
                 aux.add(rsmd.getColumnName(v));
             }
-
             output.add(aux);
-            while (!ret.isAfterLast()){
-                aux = new ArrayList<>();
-                for(int v = 1; v <= nCols; v++){
-                    aux.add(ret.getString(rsmd.getColumnName(v)));
-                }
-                output.add(aux);
-                ret.next();
+            if(ret.first()){
+              while (!ret.isAfterLast()){
+
+                  aux = new ArrayList<>();
+                  for(int v = 1; v <= nCols; v++){
+                      aux.add(ret.getString(rsmd.getColumnName(v)));
+                  }
+                  output.add(aux);
+                  ret.next();
+              }
             }
             System.out.println(Utils.formatOutput(output));
         }
@@ -712,7 +713,7 @@ public class UI {
             }
         }
     }
-    
+
     private void viewTable() {
         ResultSetMetaData rsmd = null;
         while(true) {
@@ -769,16 +770,16 @@ public class UI {
             primaryKey = meta.getPrimaryKeys(null, null, tableName);
         }
         catch (Exception e) {}
-        
+
         while(true) {
 
             // printar tabela
             generalView(tableName, 1);
 
             ArrayList<String> pk = new ArrayList<String>();
-            
+
             System.out.println("Digite a linha a ser removida");
-            
+
             /* Prompt to type primary keys */
             try {
                 primaryKey.next();
@@ -789,7 +790,7 @@ public class UI {
                 }
             }
             catch (Exception e) {}
-            
+
             /* Confirmation prompt */
             System.out.println("O dado está correto?");
             System.out.println("1. Sim");
@@ -847,7 +848,7 @@ public class UI {
                     else
                         System.out.println("Resposta inválida\n");
                 }
-            }   
+            }
         }
     }
 
