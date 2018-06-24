@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 
 public class DatabaseAccess {
@@ -82,10 +83,12 @@ public class DatabaseAccess {
         return 0;
     }
   
-    public int updateColumn(String tableName, String antigo, String novo, String coluna) {
+    public int updateColumn(String tableName, String coluna, String antigo, String novo, ArrayList<String> pk) {
         Statement st;
 
         try{
+            DatabaseMetaData meta = this.connection.getMetaData();
+            ResultSet primaryKey = meta.getPrimaryKeys(null, null, tableName);
             st = connection.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
             ResultSetMetaData rsmd = rs.getMetaData();
@@ -101,13 +104,29 @@ public class DatabaseAccess {
                 sql += "TO_DATE('"+novo+"', 'DD/MM/YYYY HH24:MI')";
             else
                 sql += "'"+novo+"'";
-            sql += "WHERE "+coluna+"=";
+            sql += " WHERE "+coluna+"=";
             if(antigo.equals(""))
                 sql += "NULL";
             else if(i <= nCols && i >= 1)
                 sql += "TO_DATE('"+antigo+"', 'DD/MM/YYYY HH24:MI')";
             else
                 sql += "'"+antigo+"'";
+            for(String str : pk) {
+                sql += " AND ";
+                int k = 0;
+                primaryKey.next();
+                while(!primaryKey.isAfterLast()) {
+                    sql += primaryKey.getString("COLUMN_NAME") + "=";
+                    if(pk.get(k).equals(""))
+                        sql += "NULL";
+                    else if(i <= nCols && i >= 1)
+                        sql += "TO_DATE('"+pk.get(k)+"', 'DD/MM/YYYY HH24:MI')";
+                    else
+                        sql += "'"+pk.get(k)+"'";
+                    k++;
+                    primaryKey.next();
+                }
+            }
             st = connection.createStatement();
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
@@ -129,29 +148,38 @@ public class DatabaseAccess {
             case 2292:
                 System.out.println("Valor a ser removido é referenciado externamente");
                     break;
+            default:
+                e.printStackTrace();
             }
         }
         return 0;
     }
 
-    public int removeColumn(String tableName, String valor, String coluna) {
+    public int removeColumn(String tableName, ArrayList<String> pk) {
         Statement st;
 
         try{
+            DatabaseMetaData meta = this.connection.getMetaData();
+            ResultSet primaryKey = meta.getPrimaryKeys(null, null, tableName);            
             st = connection.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
             ResultSetMetaData rsmd = rs.getMetaData();
-            int nCols = rsmd.getColumnCount(), i;
-            for(i = 1; i <= nCols; i++)
-                if(rsmd.getColumnName(i).equals(coluna) && rsmd.getColumnTypeName(i).equals("DATE"))
-                    break;
-            String sql = "DELETE FROM "+tableName+" WHERE " + coluna + "=";
-            if(valor.equals(""))
-                sql += "NULL";
-            else if(i <= nCols && i >= 1)
-                sql += "TO_DATE('"+valor+"', 'DD/MM/YYYY HH24:MI')";
-            else
-                sql += "'"+valor+"'";
+            int nCols = rsmd.getColumnCount();
+
+            String sql = "DELETE FROM "+tableName+" WHERE ";
+            int k = 0;
+            primaryKey.next();
+            while(!primaryKey.isAfterLast()) {
+                sql += primaryKey.getString("COLUMN_NAME") + "=";
+                if(pk.get(k).equals(""))
+                    sql += "NULL";
+                else
+                    sql += "'"+pk.get(k)+"'";
+                k++;
+                primaryKey.next();
+                if(!primaryKey.isAfterLast())
+                    sql += " AND ";
+            }
             st = connection.createStatement();
             sql = Utils.deAccent(sql);
             return st.executeUpdate(sql);
@@ -173,6 +201,8 @@ public class DatabaseAccess {
             case 2292:
                 System.out.println("Valor a ser removido é referenciado externamente");
                     break;
+            default:
+                e.printStackTrace();
             }
         }
         return 0;
@@ -243,7 +273,6 @@ public class DatabaseAccess {
         }
         return null;
     }
-
 
     public Connection getConnection() {
         return this.connection;

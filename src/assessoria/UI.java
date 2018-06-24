@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.DatabaseMetaData;
 import java.sql.Statement;
 import assessoria.DatabaseAccess;
 
@@ -418,16 +420,18 @@ public class UI {
 
     private void createUpdateInput(String tableName) {
         Statement st = null;
-        ResultSet rs = null;
+        ResultSet rs = null, primaryKey = null;
         ResultSetMetaData rsmd = null;
-        int nCols = 0;
+        int nCols = 0, nPK = -1;
         Scanner s = new Scanner(System.in);
         String antigo = null, novo = null;
         int coll = 0;
         boolean exit = false;
-
+        DatabaseMetaData meta = null;
+        
         /* Get every table column and number of columns */
         try {
+            meta = this.db.getConnection().getMetaData();
             st = this.db.getConnection().createStatement();
             rs = st.executeQuery("SELECT * FROM " + tableName);
             rsmd = rs.getMetaData();
@@ -435,11 +439,29 @@ public class UI {
         }
         catch (Exception e) {}
 
+        try {
+            primaryKey = meta.getPrimaryKeys(null, null, tableName);
+        }
+        catch (Exception e) {}
+
+        // printar tabela
+        generalView(tableName);
+
+        ArrayList<String> pk = new ArrayList<String>();
+        
+        System.out.println("Digite a linha a ser alterada");
+        try {
+            primaryKey.next();
+            while(!primaryKey.isAfterLast()) {
+                System.out.print(primaryKey.getString("COLUMN_NAME")+": ");
+                pk.add(s.nextLine());
+                primaryKey.next();
+            }
+        }
+        catch (Exception e) {}
+        
         while(true) {
-
-            // printar tabela
-            generalView(tableName);
-
+            
             /* Show column names and exit option */
             System.out.println("Digite a coluna que deseja alterar");
             for(int col = 1; col <= nCols; col++) {
@@ -508,8 +530,12 @@ public class UI {
                 Screen.clear();
 
                 if(answer.equals("1") || answer.equals("sim")) {
+                    antigo = Utils.deAccent(antigo);
+                    novo = Utils.deAccent(novo);
+                    pk = Utils.deAccentArray(pk);
+                    columnName = Utils.deAccent(columnName);
                     /* Try to update table */
-                    int ret = this.db.updateColumn(tableName, antigo, novo, columnName);
+                    int ret = this.db.updateColumn(tableName, columnName, antigo, novo, pk);
                     /* Update success */
                     if(ret != 0) {
                         System.out.println("Inserção efetuada com sucesso");
@@ -617,26 +643,12 @@ public class UI {
             e.printStackTrace();
         }
         if(ret != null) {
-                System.out.println("Vizualização apresentada com sucesso");
-                return;
+            System.out.println("Vizualização apresentada com sucesso");
+            return;
         }
         /* Error */
         else {
-            System.out.println("Não foi possível vizualizar a tabela selecionada");/*, deseja tentar de novo?");
-            while(true) {
-                System.out.println("1. Sim");
-                System.out.println("2. Não");
-                String ans = s.nextLine();
-                ans = ans.toLowerCase();
-                if(ans.equals("1") || ans.equals("sim")) {
-                    System.out.println("Reinsira o dado\n");
-                    return;
-                }
-                else if(ans.equals("2") || ans.equals("não"))
-                    return;
-                else
-                    System.out.println("Resposta inválida\n");
-            }*/
+            System.out.println("Não foi possível vizualizar a tabela selecionada");
         }
     }
 
@@ -667,148 +679,118 @@ public class UI {
             }
             /* Get input from user */
             else {
-                generalView(input);
+                this.generalView(input);
             }
         }
     }
 
 
-    private void createRemove(String tableName) {
+    private void createRemoveInput(String tableName) {
         Statement st = null;
-        ResultSet rs = null;
+        ResultSet rs = null, primaryKey = null;
         ResultSetMetaData rsmd = null;
         int nCols = 0;
         Scanner s = new Scanner(System.in);
         String valor = null;
         int coll = 0;
-        boolean exit = false;
+        DatabaseMetaData meta = null;
 
         /* Get every table column and number of columns */
         try {
+            meta = this.db.getConnection().getMetaData();
             st = this.db.getConnection().createStatement();
             rs = st.executeQuery("SELECT * FROM " + tableName);
             rsmd = rs.getMetaData();
             nCols = rsmd.getColumnCount();
         }
-        catch (Exception e) {}
+        catch (Exception e) {
+            System.out.println("DEU RUIM 0");
+        }
 
+        try {
+            primaryKey = meta.getPrimaryKeys(null, null, tableName);
+        }
+        catch (Exception e) {
+            System.out.println("DEU RUIM 1");            
+        }
+        
         while(true) {
 
             // printar tabela
             generalView(tableName);
 
-            /* Show column names and exit option */
-            System.out.println("Digite a coluna que deseja utilizar para remover");
-            for(int col = 1; col <= nCols; col++) {
-                String name = null;
-                try {
-                    name = rsmd.getColumnName(col);
+            ArrayList<String> pk = new ArrayList<String>();
+            
+            System.out.println("Digite a linha a ser removida");
+            
+            /* Prompt to type primary keys */
+            try {
+                primaryKey.next();
+                while(!primaryKey.isAfterLast()) {
+                    System.out.print(primaryKey.getString("COLUMN_NAME")+": ");
+                    pk.add(s.nextLine());
+                    primaryKey.next();
                 }
-                catch (Exception e) {}
-                System.out.println(col + ". " + name);
             }
-            System.out.println(nCols+1 + ". Sair");
+            catch (Exception e) {}
+            
+            /* Confirmation prompt */
+            System.out.println("O dado está correto?");
+            System.out.println("1. Sim");
+            System.out.println("2. Não");
 
-            /* Get and filter input */
-            String columnName = s.nextLine();
-            columnName = this.filterUpdateInput(rsmd, columnName);
+            String answer = s.nextLine();
+            answer = answer.toLowerCase();
 
-            /* Empty string is invalid option */
-            if(columnName.equals("")) {
-                Screen.clear();
-                System.out.println("Coluna inválida\n");
-                continue;
-            }
-            /* Exit */
-            else if(columnName.equals("SAIR")) {
-                Screen.clear();
-                exit = true;
-                break;
-            }
-            if(exit)
-                break;
+            Screen.clear();
 
-            while (true){
-                /* Prompt to enter value to remove */
-                while (true){
-                    System.out.println("Digite o valor de "+columnName+" a ser removido: ");
-                    valor = s.nextLine();
-
-                    /* Check if column is 'NOT NULL' */
-                    int nullable = 0;
-                    try {
-                        nullable = rsmd.isNullable(coll);
-                    }
-                    catch(Exception e) {}
-
-                    /* Prompt error on empty field when column is 'NOT NULL' */
-                    if(valor.equals("") && nullable == ResultSetMetaData.columnNoNulls) {
-                        System.out.println("Valor inválido. Este campo é obrigatório");
-                    }
-                    /* Both inputs have valid values */
-                    else {
-                        break;
-                    }
+            if(answer.equals("1") || answer.equals("sim")) {
+                /* Try to update table */
+                int ret = this.db.removeColumn(tableName, pk);
+                /* Update success */
+                if(ret != 0) {
+                    System.out.println("Remoção efetuada com sucesso\n");
+                    break;
                 }
-
-                /* Confirmation prompt */
-                System.out.println("O dado está correto?");
-                System.out.println("1. Sim");
-                System.out.println("2. Não");
-
-                String answer = s.nextLine();
-                answer = answer.toLowerCase();
-
-                Screen.clear();
-
-                if(answer.equals("1") || answer.equals("sim")) {
-                    /* Try to update table */
-                    int ret = this.db.removeColumn(tableName, valor, columnName);
-                    /* Update success */
-                    if(ret != 0) {
-                        System.out.println("Remoção efetuada com sucesso");
-                        break;
-                    }
-                    /* Error */
-                    else {
-                        System.out.println("Não foi possível remover, deseja tentar de novo?\n");
-                        while(true) {
-                            System.out.println("1. Sim");
-                            System.out.println("2. Não");
-                            String ans = s.nextLine();
-                            ans = ans.toLowerCase();
-                            if(ans.equals("1") || ans.equals("sim")) {
-                                System.out.println("Reinsira o dado\n");
-                                break;
-                            }
-                            else if(ans.equals("2") || ans.equals("não"))
-                                return;
-                            else
-                                System.out.println("Resposta inválida\n");
-                        }
-                    }
-                }
-                /* If data is incorrect */
-                else if(answer.equals("2") || answer.equals("não")) {
-                    System.out.println("O que deseja fazer?");
+                /* Error */
+                else {
+                    System.out.println("Não foi possível remover, deseja tentar de novo?\n");
                     while(true) {
-                        System.out.println("1. Reinserir dados");
-                        System.out.println("2. Sair");
-
+                        System.out.println("1. Sim");
+                        System.out.println("2. Não");
                         String ans = s.nextLine();
-                        Screen.clear();
-                        if(ans.equals("1") || ans.equals("reinserir dados") ||
-                           ans.equals("reinserir")) {
-                            System.out.println("Reinsira os dados\n");
+                        ans = ans.toLowerCase();
+                        if(ans.equals("1") || ans.equals("sim")) {
+                            System.out.println("Reinsira o dado\n");
                             break;
                         }
-                        else if(ans.equals("2") || ans.equals("sair"))
+                        else if(ans.equals("2") || ans.equals("não"))
                             return;
                         else
                             System.out.println("Resposta inválida\n");
                     }
                 }
             }
+            /* If data is incorrect */
+            else if(answer.equals("2") || answer.equals("não")) {
+                System.out.println("O que deseja fazer?");
+                while(true) {
+                    System.out.println("1. Reinserir dados");
+                    System.out.println("2. Sair");
+
+                    String ans = s.nextLine();
+                    Screen.clear();
+                    if(ans.equals("1") || ans.equals("reinserir dados") ||
+                       ans.equals("reinserir")) {
+                        System.out.println("Reinsira os dados\n");
+                        break;
+                    }
+                    else if(ans.equals("2") || ans.equals("sair"))
+                        return;
+                    else
+                        System.out.println("Resposta inválida\n");
+                }
+            }   
         }
     }
 
@@ -826,20 +808,20 @@ public class UI {
 
             /* Getting input and filtering */
             Scanner s = new Scanner(System.in);
-            String input = s.nextLine();
-            input = filterInsert(input);
+            String tableName = s.nextLine();
+            tableName = filterInsert(tableName);
 
             Screen.clear();
             /* Exit */
-            if(input.equals(Integer.toString(i)) || input.equals("SAIR"))
+            if(tableName.equals(Integer.toString(i)) || tableName.equals("SAIR"))
                 break;
             /* Invalid input */
-            else if(input.equals("")) {
+            else if(tableName.equals("")) {
                 System.out.println("Tabela inválida\n");
             }
             /* Get input from user */
             else {
-                this.createRemove(input);
+                this.createRemoveInput(tableName);
             }
         }
     }
@@ -992,15 +974,6 @@ public class UI {
                 System.out.println("Não foi possível fazer o select\n");
                 return;
             }
-
         }
     }
-
-
-
-
-
-
-
-
 }
