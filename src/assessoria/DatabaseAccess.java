@@ -278,9 +278,9 @@ public class DatabaseAccess {
         Statement st;
         
         try{
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
 
-            return st.executeQuery("SELECT FESTA.NOTA_FISCAL, COUNT(PRATOS.PRATO) AS NRO_PRATOS, COUNT(BEBIDAS.BEBIDA) AS NRO_BEBIDAS FROM FESTA JOIN EQUIPE_BUFE ON (FESTA.EQUIPE_BUFE = EQUIPE_BUFE.CNPJ) JOIN PRATOS ON (EQUIPE_BUFE.CNPJ = PRATOS.EQUIPE) JOIN BEBIDAS ON (EQUIPE_BUFE.CNPJ = BEBIDAS.EQUIPE) GROUP BY FESTA.NOTA_FISCAL");
+            return st.executeQuery("SELECT FESTA.NOTA_FISCAL, COUNT(PRATOS.PRATO) AS NRO_PRATOS, COUNT(BEBIDAS.BEBIDA) AS NRO_BEBIDAS FROM FESTA JOIN EQUIPE_BUFE ON (FESTA.EQUIPE_BUFE = EQUIPE_BUFE.CNPJ) LEFT JOIN PRATOS ON (EQUIPE_BUFE.CNPJ = PRATOS.EQUIPE) LEFT JOIN BEBIDAS ON (EQUIPE_BUFE.CNPJ = BEBIDAS.EQUIPE) GROUP BY FESTA.NOTA_FISCAL");
         }
         catch(Exception e){
 			e.printStackTrace();
@@ -292,9 +292,9 @@ public class DatabaseAccess {
         Statement st;
         
         try{
-            st = connection.createStatement();
+            st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
 
-            return st.executeQuery("SELECT FESTA.NOTA_FISCAL, LOCAL.CIDADE, COUNT(MESA.NUMERO) AS NRO_MESAS FROM FESTA JOIN LOCAL ON (FESTA.LOCAL = LOCAL.ID) JOIN MESA ON (MESA.LOCAL = LOCAL.ID) GROUP BY FESTA.NOTA_FISCAL, LOCAL.CIDADE");
+            return st.executeQuery("SELECT FESTA.NOTA_FISCAL, LOCAL.CIDADE, COUNT(MESA.NUMERO) AS NRO_MESAS FROM FESTA JOIN LOCAL ON (FESTA.LOCAL = LOCAL.ID) LEFT JOIN MESA ON (MESA.LOCAL = LOCAL.ID) GROUP BY FESTA.NOTA_FISCAL, LOCAL.CIDADE");
         }
         catch(Exception e){
 			e.printStackTrace();
