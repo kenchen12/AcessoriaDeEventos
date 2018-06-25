@@ -417,7 +417,7 @@ public class UI {
         catch (Exception e) {}
 
         while(true) {
-            
+
             try {
                 primaryKey = meta.getPrimaryKeys(null, null, tableName);
             }
@@ -427,7 +427,7 @@ public class UI {
             generalView(tableName, 1);
 
             ArrayList<String> pk = new ArrayList<String>();
-        
+
             System.out.println("Digite a linha a ser alterada");
             try {
                 primaryKey.next();
@@ -512,7 +512,7 @@ public class UI {
                 System.out.println("Tipo de local inválido para tipo de festa\n");
                 continue;
             }
-                
+
             /* Confirmation prompt */
             System.out.println("O novo dado está correto?");
             System.out.println("1. Sim");
@@ -681,7 +681,7 @@ public class UI {
             System.out.println("O que gostaria de visualizar?");
             System.out.println("(Digite apenas o número)");
             System.out.println("1. Tabelas");
-            System.out.println("2. Nome dos clientes e todos seus condidados nas festas entre 2010 e 2018");
+            System.out.println("2. Nome dos clientes, todos seus convidados e a data das festas para que foram convidados nas festas entre 2010 e 2018");
             System.out.println("3. Nome de cada equipe e quantidade de festas de casamento participaram");
             System.out.println("4. CPF e nome artístico de cada animador que participou de pelo menos duas festas em 2018");
             System.out.println("5. Nota fiscal de todas as festas e, para as que possuírem, apresentar nome da banda e seu gênero");

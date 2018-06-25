@@ -213,7 +213,7 @@ public class DatabaseAccess {
 
         try{
             st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
-            return st.executeQuery("SELECT CLIENTE.NOME AS CLIENT, CONVIDADO.NOME AS CONVIDADO FROM FESTA JOIN CLIENTE ON (FESTA.CLIENTE = CLIENTE.CPF) AND ( EXTRACT(YEAR FROM FESTA.DATA_HORA) >= 2010) AND ( EXTRACT(YEAR FROM FESTA.DATA_HORA) <= 2018) JOIN CONVIDADO ON (CONVIDADO.FESTA = FESTA.NOTA_FISCAL) ORDER BY CLIENTE.NOME");
+            return st.executeQuery("SELECT CLIENTE.NOME AS CLIENTE, CONVIDADO.NOME AS CONVIDADO, FESTA.DATA_HORA AS DATA_E_HORA FROM FESTA JOIN CLIENTE ON (FESTA.CLIENTE = CLIENTE.CPF) AND ( EXTRACT(YEAR FROM FESTA.DATA_HORA) >= 2010) AND ( EXTRACT(YEAR FROM FESTA.DATA_HORA) <= 2018) JOIN CONVIDADO ON (CONVIDADO.FESTA = FESTA.NOTA_FISCAL) ORDER BY CLIENTE.NOME");
         }
         catch(Exception e){
 			e.printStackTrace();
@@ -276,7 +276,7 @@ public class DatabaseAccess {
 
     public ResultSet select5() {
         Statement st;
-        
+
         try{
             st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
 
@@ -290,7 +290,7 @@ public class DatabaseAccess {
 
     public ResultSet select6() {
         Statement st;
-        
+
         try{
             st = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
 
@@ -300,8 +300,8 @@ public class DatabaseAccess {
 			e.printStackTrace();
         }
         return null;
-    }  
-    
+    }
+
     public Connection getConnection() {
         return this.connection;
     }
