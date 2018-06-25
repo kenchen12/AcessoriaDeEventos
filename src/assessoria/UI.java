@@ -685,7 +685,7 @@ public class UI {
             System.out.println("3. Nome de cada equipe e quantidade de festas de casamento participaram");
             System.out.println("4. CPF e nome artístico de cada animador que participou de pelo menos duas festas em 2018");
             System.out.println("5. Nota fiscal de todas as festas e, para as que possuírem, apresentar nome da banda e seu gênero");
-            System.out.println("6. Nota fiscal de cada festa, a equipe responsável e o número de pratos e bebidas oferecedios por ela");
+            System.out.println("6. Nota fiscal de cada festa, a equipe responsável e o número de pratos e bebidas oferecidos por ela");
             System.out.println("7. Para cada festa, mostrar nota fiscal, cliente, cidade, data e o número de mesas do local");
             System.out.println("8. Sair");
 
